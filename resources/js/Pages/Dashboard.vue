@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 
 defineProps({
     categories: Array,
@@ -26,7 +26,12 @@ const speak = (word) => {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Tablica Komunikacyjna</h2>
+            <div class="flex justify-between items-center">
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">Tablica Komunikacyjna</h2>
+                <Link :href="route('pictograms.create')" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded shadow transition">
+                    + Dodaj własny piktogram
+                </Link>
+            </div>
         </template>
 
         <div class="py-12">
@@ -45,7 +50,9 @@ const speak = (word) => {
                                  @click="speak(pictogram.name)"
                                  class="border-4 rounded-2xl p-4 w-40 h-40 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 active:bg-blue-100 active:scale-95 transition-all shadow-md hover:shadow-xl hover:-translate-y-1">
 
-                                <div class="text-6xl mb-2">🖼️</div>
+                                <img v-if="pictogram.image_path" :src="pictogram.image_path" @error="pictogram.image_path = null" :alt="pictogram.name" class="w-20 h-20 object-contain mb-2 rounded" />
+                                <div v-else class="text-6xl mb-2">🖼️</div>
+
                                 <span class="text-xl font-bold text-gray-800 text-center">{{ pictogram.name }}</span>
 
                             </div>
