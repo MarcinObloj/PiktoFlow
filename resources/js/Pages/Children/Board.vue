@@ -1,5 +1,4 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
@@ -41,68 +40,62 @@ const clearSentence = () => {
 <template>
     <Head :title="'Tablica - ' + child.name" />
 
-    <AuthenticatedLayout>
-        <template #header>
-            <div class="flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <Link :href="route('children.index')" class="text-gray-500 hover:text-gray-700 text-2xl font-bold">
-                        &larr;
-                    </Link>
-                    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                        Tablica Komunikacyjna: <span class="text-blue-600">{{ child.name }}</span>
-                    </h2>
-                </div>
-            </div>
-        </template>
+    <div class="min-h-screen bg-white flex flex-col relative font-sans">
 
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 mb-8 border-4 border-blue-200">
-                    <h3 class="text-lg font-bold text-gray-700 mb-4">Budowanie zdania:</h3>
-                    <div class="flex items-center gap-4 min-h-[120px]">
-
-                        <div class="flex-1 flex flex-wrap gap-2 p-4 bg-gray-50 rounded-xl min-h-[120px] items-center">
-                            <span v-if="sentence.length === 0" class="text-gray-400 italic">Kliknij piktogramy poniżej...</span>
-
-                            <div v-for="(p, index) in sentence" :key="index" class="border-2 border-gray-300 rounded-lg p-2 w-24 h-24 flex flex-col items-center justify-center bg-white shadow-sm hover:bg-red-50 cursor-pointer" @click="sentence.splice(index, 1)">
-                                <img v-if="p.image_path" :src="p.image_path" @error="p.image_path = null" :alt="p.name" class="w-10 h-10 object-contain mb-1 rounded" />
-                                <div v-else class="text-3xl mb-1">🖼️</div>
-                                <span class="text-xs font-bold text-gray-800 text-center leading-tight truncate w-full">{{ p.name }}</span>
-                            </div>
-                        </div>
-
-                        <div class="flex flex-col gap-2">
-                            <button @click="speakSentence" class="bg-blue-500 hover:bg-blue-600 text-white font-bold p-4 rounded-xl shadow transition flex items-center justify-center h-16 w-16">
-                                <span class="text-2xl">🔊</span>
-                            </button>
-                            <button @click="clearSentence" class="bg-red-500 hover:bg-red-600 text-white font-bold p-4 rounded-xl shadow transition flex items-center justify-center h-16 w-16">
-                                <span class="text-2xl">🗑️</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <div v-for="category in categories" :key="category.id" class="mb-8 border-b pb-4">
-                        <h3 class="text-2xl font-bold mb-4 uppercase tracking-wider" :style="{ color: category.color }">
-                            {{ category.name }}
-                        </h3>
-                        <div class="flex flex-wrap gap-4">
-                            <div v-for="pictogram in category.pictograms" :key="pictogram.id"
-                                 @click="addToSentence(pictogram)"
-                                 class="border-4 rounded-2xl p-4 w-40 h-40 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 active:bg-blue-100 active:scale-95 transition-all shadow-md hover:shadow-xl hover:-translate-y-1">
-
-                                <img v-if="pictogram.image_path" :src="pictogram.image_path" @error="pictogram.image_path = null" :alt="pictogram.name" class="w-20 h-20 object-contain mb-2 rounded" />
-                                <div v-else class="text-6xl mb-2">🖼️</div>
-
-                                <span class="text-xl font-bold text-gray-800 text-center">{{ pictogram.name }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+        <div class="absolute top-4 right-4 z-50">
+            <Link :href="route('children.index')" class="text-gray-300 hover:text-gray-600 transition-colors flex items-center gap-1 bg-gray-50 px-3 py-1 rounded-full text-sm font-medium border border-gray-100 shadow-sm">
+                <span>🔒</span> Wyjdź
+            </Link>
         </div>
-    </AuthenticatedLayout>
+
+        <div class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 pt-16">
+
+            <div class="bg-blue-50 border-4 border-blue-200 rounded-3xl p-4 mb-8 shadow-sm">
+                <div class="flex items-center gap-4 min-h-[120px]">
+
+                    <div class="flex-1 flex flex-wrap gap-2 p-4 bg-white rounded-2xl border-2 border-dashed border-blue-200 min-h-[120px] items-center">
+                        <span v-if="sentence.length === 0" class="text-gray-400 font-medium text-lg">Ułóż zdanie klikając w obrazki...</span>
+
+                        <div v-for="(p, index) in sentence" :key="index" class="border-2 border-gray-200 rounded-xl p-2 w-24 h-24 flex flex-col items-center justify-center bg-white shadow-sm hover:bg-red-50 cursor-pointer transition-colors" @click="sentence.splice(index, 1)" title="Usuń z paska">
+                            <img v-if="p.image_path" :src="p.image_path" @error="p.image_path = null" :alt="p.name" class="w-10 h-10 object-contain mb-1 rounded" />
+                            <div v-else class="text-3xl mb-1">🖼️</div>
+                            <span class="text-xs font-bold text-gray-800 text-center leading-tight truncate w-full">{{ p.name }}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <button @click="speakSentence" class="bg-blue-500 hover:bg-blue-600 text-white font-bold p-4 rounded-2xl shadow-md transition-all flex items-center justify-center h-16 w-16 active:scale-95">
+                            <span class="text-2xl">🔊</span>
+                        </button>
+                        <button @click="clearSentence" class="bg-red-500 hover:bg-red-600 text-white font-bold p-4 rounded-2xl shadow-md transition-all flex items-center justify-center h-16 w-16 active:scale-95">
+                            <span class="text-2xl">🗑️</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="categories.length === 0" class="text-center py-20 text-gray-500 text-xl font-medium">
+                Brak przypisanych piktogramów. <br>Wróć do panelu (🔒) i kliknij "Zarządzaj słowami".
+            </div>
+
+            <div v-for="category in categories" :key="category.id" class="mb-10">
+                <h3 class="text-xl font-bold mb-4 uppercase tracking-wider px-2" :style="{ color: category.color }">
+                    {{ category.name }}
+                </h3>
+
+                <div class="flex flex-wrap gap-4">
+                    <div v-for="pictogram in category.pictograms" :key="pictogram.id"
+                         @click="addToSentence(pictogram)"
+                         class="border-4 rounded-3xl p-4 w-36 h-36 sm:w-40 sm:h-40 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 active:bg-blue-100 active:scale-95 transition-all shadow-sm hover:shadow-md bg-white border-gray-200">
+
+                        <img v-if="pictogram.image_path" :src="pictogram.image_path" @error="pictogram.image_path = null" :alt="pictogram.name" class="w-16 h-16 sm:w-20 sm:h-20 object-contain mb-2 rounded" />
+                        <div v-else class="text-5xl sm:text-6xl mb-2">🖼️</div>
+
+                        <span class="text-lg sm:text-xl font-bold text-gray-800 text-center leading-tight">{{ pictogram.name }}</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </template>
