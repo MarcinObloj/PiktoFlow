@@ -1,10 +1,4 @@
 <script setup>
-import Checkbox from '@/Components/Checkbox.vue';
-import GuestLayout from '@/Layouts/GuestLayout.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
 defineProps({
@@ -30,71 +24,93 @@ const submit = () => {
 </script>
 
 <template>
-    <GuestLayout>
-        <Head title="Log in" />
+    <Head title="Logowanie" />
 
-        <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
-            {{ status }}
+    <div class="min-h-screen flex w-full font-sans bg-gray-100">
+
+        <div class="hidden md:flex md:w-1/2 bg-blue-600 justify-center items-center p-8 text-white shadow-inner">
+            <div class="max-w-md text-center">
+                <div class="text-8xl mb-8 drop-shadow-lg">🧩</div>
+                <h1 class="text-5xl font-black mb-4 tracking-tight">PiktoFlow</h1>
+                <p class="text-xl font-light opacity-90 leading-relaxed">
+                    Twój system komunikacji alternatywnej (AAC). Pomagamy wyrazić to, co najważniejsze.
+                </p>
+            </div>
         </div>
 
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="email" value="Email" />
+        <div class="w-full md:w-1/2 flex items-center justify-center p-6">
+            <div class="w-full max-w-md bg-white p-8 sm:p-10 rounded-3xl shadow-2xl border border-gray-50">
 
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">Witaj ponownie!</h2>
+                <p class="text-gray-500 mb-8">Zaloguj się do panelu opiekuna.</p>
 
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
+                <div v-if="status" class="mb-4 font-medium text-sm text-green-600 p-3 bg-green-50 rounded-lg">
+                    {{ status }}
+                </div>
 
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
+                <form @submit.prevent="submit" class="flex flex-col gap-5">
 
-                <TextInput
-                    id="password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password"
-                    required
-                    autocomplete="current-password"
-                />
+                    <div>
+                        <label for="email" class="block text-sm font-bold text-gray-700 mb-1">Adres Email</label>
+                        <input
+                            id="email"
+                            type="email"
+                            v-model="form.email"
+                            required
+                            autofocus
+                            placeholder="jan@kowalski.pl"
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all text-gray-800 bg-gray-50 focus:bg-white"
+                        />
+                        <div v-if="form.errors.email" class="text-red-500 text-sm mt-1 font-medium">{{ form.errors.email }}</div>
+                    </div>
 
-                <InputError class="mt-2" :message="form.errors.password" />
-            </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label for="password" class="block text-sm font-bold text-gray-700">Hasło</label>
+                            <Link v-if="canResetPassword" :href="route('password.request')" class="text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors">
+                                Zapomniałeś hasła?
+                            </Link>
+                        </div>
+                        <input
+                            id="password"
+                            type="password"
+                            v-model="form.password"
+                            required
+                            placeholder="••••••••"
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all text-gray-800 bg-gray-50 focus:bg-white"
+                        />
+                        <div v-if="form.errors.password" class="text-red-500 text-sm mt-1 font-medium">{{ form.errors.password }}</div>
+                    </div>
 
-            <div class="mt-4 block">
-                <label class="flex items-center">
-                    <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="ms-2 text-sm text-gray-600"
-                        >Remember me</span
+                    <div class="flex items-center mt-2">
+                        <input
+                            id="remember"
+                            type="checkbox"
+                            v-model="form.remember"
+                            class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
+                        />
+                        <label for="remember" class="ml-2 text-sm text-gray-700 font-medium cursor-pointer">Zapamiętaj mnie na tym urządzeniu</label>
+                    </div>
+
+                    <button
+                        type="submit"
+                        :disabled="form.processing"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-3 rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 mt-4 active:scale-[0.98]"
                     >
-                </label>
-            </div>
+                        Zaloguj się
+                    </button>
 
-            <div class="mt-4 flex items-center justify-end">
-                <Link
-                    v-if="canResetPassword"
-                    :href="route('password.request')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                    Forgot your password?
-                </Link>
+                </form>
 
-                <PrimaryButton
-                    class="ms-4"
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
-                    Log in
-                </PrimaryButton>
+                <div class="mt-8 text-center text-sm text-gray-600 bg-gray-50 p-4 rounded-xl">
+                    Nie masz jeszcze konta?
+                    <Link :href="route('register')" class="font-bold text-blue-600 hover:text-blue-800 transition-colors ml-1">
+                        Zarejestruj się za darmo
+                    </Link>
+                </div>
+
             </div>
-        </form>
-    </GuestLayout>
+        </div>
+
+    </div>
 </template>
