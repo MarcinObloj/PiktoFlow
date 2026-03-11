@@ -16,7 +16,7 @@ const showingNavigationDropdown = ref(false);
             <nav
                 class="border-b border-gray-100 bg-white"
             >
-                <!-- Primary Navigation Menu -->
+
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="flex h-16 justify-between">
                         <div class="flex">
@@ -38,6 +38,14 @@ const showingNavigationDropdown = ref(false);
                                     :active="route().current('dashboard')"
                                 >
                                     Dashboard
+                                </NavLink>
+                            </div>
+                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                                <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
+                                    Główna Tablica
+                                </NavLink>
+                                <NavLink :href="route('children.index')" :active="route().current('children.*')">
+                                    Profile Dzieci
                                 </NavLink>
                             </div>
                         </div>
