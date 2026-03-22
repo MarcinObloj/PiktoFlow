@@ -39,7 +39,7 @@ defineProps({
                 </p>
                 <div class="flex flex-wrap gap-4">
                     <Link :href="route('register')" class=" bg-blue-600 text-white px-10 py-4 px-2 rounded-2xl text-xl font-bold shadow-xl hover:bg-blue-700 transition hover:-translate-y-1 active:scale-95">Rozpocznij teraz</Link>
-                    <a href="#funkcje" class="bg-gray-100 text-gray-700 px-10 py-4 px-2 rounded-2xl text-xl font-bold hover:bg-gray-200 transition">Zobacz funkcje</a>
+                    <a href="#funkcje" class="bg-gray-100 text-gray-700 px-10 py-4 px-2 nprounded-2xl text-xl font-bold hover:bg-gray-200 transition">Zobacz funkcje</a>
                 </div>
             </div>
 
