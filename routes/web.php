@@ -1,44 +1,78 @@
 <?php
 
-use App\Http\Controllers\PictogramController;
 use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
+use App\Http\Controllers\PictogramController;
+use App\Http\Controllers\ChildController;
+use App\Models\Category;
+use App\Models\Pictogram;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Models\Category;
-use App\Http\Controllers\ChildController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
     ]);
-});
+})->name('home');
+
 
 Route::get('/dashboard', function () {
-    $categories = Category::with('pictograms')->get();
+    $myCategories = Category::where('user_id', auth()->id())->get();
+
+    $myPictograms = Pictogram::whereHas('category', function ($query) {
+        $query->where('user_id', auth()->id());
+    })->get();
 
     return Inertia::render('Dashboard', [
-        'categories' => $categories
+        'myCategories' => $myCategories,
+        'myPictograms' => $myPictograms
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+
 Route::middleware('auth')->group(function () {
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/pictograms/create', [PictogramController::class, 'create'])->name('pictograms.create');
     Route::post('/pictograms', [PictogramController::class, 'store'])->name('pictograms.store');
+    Route::delete('/pictograms/{pictogram}', [PictogramController::class, 'destroy'])->name('pictograms.destroy');
 
     Route::get('/children', [ChildController::class, 'index'])->name('children.index');
     Route::get('/children/create', [ChildController::class, 'create'])->name('children.create');
     Route::post('/children', [ChildController::class, 'store'])->name('children.store');
     Route::get('/children/{child}/board', [ChildController::class, 'board'])->name('children.board');
-
     Route::get('/children/{child}/manage', [ChildController::class, 'manage'])->name('children.manage');
     Route::post('/children/{child}/manage', [ChildController::class, 'updateWords'])->name('children.update-words');
+
+    Route::get('/categories/create', function () {
+        return Inertia::render('Categories/Create');
+    })->name('categories.create');
+
+    Route::post('/categories', function (Request $request) {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'color' => 'required|string|max:7',
+        ]);
+
+        auth()->user()->categories()->create([
+            'name' => $request->name,
+            'color' => $request->color,
+        ]);
+
+        return redirect()->route('dashboard');
+    })->name('categories.store');
+
+    Route::delete('/categories/{category}', function (Category $category) {
+        if ($category->user_id === auth()->id()) {
+            $category->delete();
+        }
+        return redirect()->route('dashboard');
+    })->name('categories.destroy');
+
 });
+
 require __DIR__.'/auth.php';

@@ -38,6 +38,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Child::class);
     }
+    public function categories()
+    {
+        return $this->hasMany(Category::class);
+    }
     /**
      * Get the attributes that should be cast.
      *
