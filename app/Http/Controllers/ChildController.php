@@ -40,20 +40,48 @@ class ChildController extends Controller
             abort(403);
         }
 
-        $categories = \App\Models\Category::whereHas('pictograms', function ($query) use ($child) {
-            $query->whereHas('children', function ($q) use ($child) {
-                $q->where('child_id', $child->id);
-            });
-        })->with(['pictograms' => function ($query) use ($child) {
-            $query->whereHas('children', function ($q) use ($child) {
-                $q->where('child_id', $child->id);
-            });
-        }])->get();
+        $pictograms = $child->pictograms()
+            ->with('category') // Pobierz dane o kategorii
+            ->withPivot('position')
+            ->orderByPivot('position', 'asc')
+            ->get();
+
+        $grouped = $pictograms->groupBy('category_id');
+
+        $categories = $grouped->map(function ($items) {
+            $category = $items->first()->category;
+            return [
+                'id' => $category->id,
+                'name' => $category->name,
+                'color' => $category->color,
+                'pictograms' => $items->map(function ($p) {
+                    return [
+                        'id' => $p->id,
+                        'name' => $p->name,
+                        'image_path' => $p->image_path,
+                        'position' => $p->pivot->position,
+                    ];
+                })
+            ];
+        })->values();
 
         return Inertia::render('Children/Board', [
             'child' => $child,
             'categories' => $categories
         ]);
+    }
+    public function reorder(Request $request, Child $child)
+    {
+        $ids = $request->input('ids'); // tablica ID piktogramów
+
+        foreach ($ids as $index => $id) {
+
+            $child->pictograms()->updateExistingPivot($id, [
+                'position' => $index
+            ]);
+        }
+
+        return response()->json(['status' => 'success']);
     }
     public function manage(Child $child)
     {

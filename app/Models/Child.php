@@ -18,6 +18,6 @@ class Child extends Model
 
     public function pictograms()
     {
-        return $this->belongsToMany(Pictogram::class);
+        return $this->belongsToMany(Pictogram::class, 'child_pictogram')->withPivot('position');
     }
 }

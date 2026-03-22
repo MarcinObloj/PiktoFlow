@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PictogramController;
 use App\Http\Controllers\ChildController;
+use App\Http\Controllers\ArasaacController;
 use App\Models\Category;
 use App\Models\Pictogram;
 use Illuminate\Http\Request;
@@ -15,7 +16,6 @@ Route::get('/', function () {
         'canRegister' => Route::has('register'),
     ]);
 })->name('home');
-
 
 Route::get('/dashboard', function () {
     $myCategories = Category::where('user_id', auth()->id())->get();
@@ -30,7 +30,6 @@ Route::get('/dashboard', function () {
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-
 Route::middleware('auth')->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -38,8 +37,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/pictograms/create', [PictogramController::class, 'create'])->name('pictograms.create');
+    Route::get('/pictograms/arasaac', [PictogramController::class, 'searchArasaac'])->name('pictograms.arasaac');
     Route::post('/pictograms', [PictogramController::class, 'store'])->name('pictograms.store');
     Route::delete('/pictograms/{pictogram}', [PictogramController::class, 'destroy'])->name('pictograms.destroy');
+
+    Route::get('/arasaac/search', [ArasaacController::class, 'search'])->name('arasaac.search');
 
     Route::get('/children', [ChildController::class, 'index'])->name('children.index');
     Route::get('/children/create', [ChildController::class, 'create'])->name('children.create');
@@ -47,6 +49,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/children/{child}/board', [ChildController::class, 'board'])->name('children.board');
     Route::get('/children/{child}/manage', [ChildController::class, 'manage'])->name('children.manage');
     Route::post('/children/{child}/manage', [ChildController::class, 'updateWords'])->name('children.update-words');
+    Route::post('/children/{child}/reorder', [ChildController::class, 'reorder'])->name('children.reorder');
 
     Route::get('/categories/create', function () {
         return Inertia::render('Categories/Create');
@@ -72,7 +75,6 @@ Route::middleware('auth')->group(function () {
         }
         return redirect()->route('dashboard');
     })->name('categories.destroy');
-
 });
 
 require __DIR__.'/auth.php';

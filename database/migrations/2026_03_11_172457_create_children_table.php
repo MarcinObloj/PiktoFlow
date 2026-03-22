@@ -1,23 +1,19 @@
 <?php
 
-namespace App\Models;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-class Child extends Model
-{
-    use HasFactory;
-
-    protected $fillable = ['user_id', 'name'];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
+return new class extends Migration {
+    public function up(): void {
+        Schema::create('children', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->timestamps();
+        });
     }
-
-    public function pictograms()
-    {
-        return $this->belongsToMany(Pictogram::class);
+    public function down(): void {
+        Schema::dropIfExists('children');
     }
-}
+};

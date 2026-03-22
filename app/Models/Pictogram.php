@@ -20,4 +20,10 @@ class Pictogram extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+
+    public function children()
+    {
+        return $this->belongsToMany(Child::class, 'child_pictogram')->withPivot('position');
+    }
 }

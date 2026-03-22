@@ -2,51 +2,40 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Category;
+use App\Models\Pictogram;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
+    public function run(): void
+    {
+        $food = Category::create(['name' => 'Jedzenie', 'color' => '#FFD700']);
+        $emotions = Category::create(['name' => 'Emocje', 'color' => '#87CEFA']);
+        $people = Category::create(['name' => 'Osoby', 'color' => '#FF69B4']);
 
-    /**
-     * Seed the application's database.
-     */
-   public function run(): void
-   {
+        $baseIcons = [
+            ['name' => 'Jabłko', 'id' => '2558', 'cat' => $food->id],
+            ['name' => 'Woda', 'id' => '2328', 'cat' => $food->id],
+            ['name' => 'Banan', 'id' => '2492', 'cat' => $food->id],
 
-       $foodCategory = \App\Models\Category::create([
-           'name' => 'Jedzenie',
-           'color' => '#FFD700'
-       ]);
+            ['name' => 'Szczęśliwy', 'id' => '3216', 'cat' => $emotions->id],
+            ['name' => 'Smutny', 'id' => '3222', 'cat' => $emotions->id],
+            ['name' => 'Zły', 'id' => '3219', 'cat' => $emotions->id],
 
+            ['name' => 'Mama', 'id' => '2511', 'cat' => $people->id],
+            ['name' => 'Tata', 'id' => '2512', 'cat' => $people->id],
+            ['name' => 'Ja', 'id' => '2501', 'cat' => $people->id],
+            ['name' => 'Ty', 'id' => '2503', 'cat' => $people->id],
+        ];
 
-       $emotionsCategory = \App\Models\Category::create([
-           'name' => 'Emocje',
-           'color' => '#87CEFA'
-       ]);
-
-       \App\Models\Pictogram::create([
-           'name' => 'Jabłko',
-           'image_path' => '/pictograms/apple.png', // Na razie dajemy fałszywą ścieżkę
-           'category_id' => $foodCategory->id,
-           'is_custom' => false
-       ]);
-
-       \App\Models\Pictogram::create([
-           'name' => 'Woda',
-           'image_path' => '/pictograms/water.png',
-           'category_id' => $foodCategory->id,
-           'is_custom' => false
-       ]);
-
-
-       \App\Models\Pictogram::create([
-           'name' => 'Szczęśliwy',
-           'image_path' => '/pictograms/happy.png',
-           'category_id' => $emotionsCategory->id,
-           'is_custom' => false
-       ]);
-   }
+        foreach ($baseIcons as $icon) {
+            Pictogram::create([
+                'name' => $icon['name'],
+                'image_path' => "https://static.arasaac.org/pictograms/{$icon['id']}/{$icon['id']}_300.png",
+                'category_id' => $icon['cat'],
+                'is_custom' => false
+            ]);
+        }
+    }
 }
