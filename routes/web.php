@@ -20,16 +20,18 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     $myCategories = Category::where('user_id', auth()->id())->get();
 
-    $myPictograms = Pictogram::whereHas('category', function ($query) {
-        $query->where('user_id', auth()->id());
-    })->get();
+    $myPictograms = Pictogram::where('is_custom', true)
+        ->orWhereHas('category', function ($query) {
+            $query->where('user_id', auth()->id());
+        })
+        ->with('category')
+        ->get();
 
     return Inertia::render('Dashboard', [
         'myCategories' => $myCategories,
         'myPictograms' => $myPictograms
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::middleware('auth')->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

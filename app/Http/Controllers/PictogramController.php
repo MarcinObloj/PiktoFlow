@@ -48,7 +48,7 @@ class PictogramController extends Controller
             'name' => $request->name,
             'category_id' => $request->category_id,
             'image_path' => $finalPath,
-            'is_custom' => $request->hasFile('image'),
+            'is_custom' => true,
         ]);
 
         return redirect()->route('dashboard');
