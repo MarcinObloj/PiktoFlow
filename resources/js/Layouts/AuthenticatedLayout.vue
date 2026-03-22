@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue'; // Dodano watch
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
@@ -7,6 +7,14 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
 
 const showingNavigationDropdown = ref(false);
+
+watch(showingNavigationDropdown, (value) => {
+    if (value) {
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.style.overflow = 'auto';
+    }
+});
 </script>
 
 <template>
@@ -61,7 +69,7 @@ const showingNavigationDropdown = ref(false);
                             </div>
                         </div>
 
-                        <div class="-me-2 flex items-center sm:hidden">
+                        <div class="-me-2 flex items-center sm:hidden z-[60]">
                             <button @click="showingNavigationDropdown = !showingNavigationDropdown" class="inline-flex items-center justify-center p-2 rounded-xl text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none transition duration-150 ease-in-out">
                                 <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                                     <path :class="{'hidden': showingNavigationDropdown, 'inline-flex': !showingNavigationDropdown }" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -72,20 +80,31 @@ const showingNavigationDropdown = ref(false);
                     </div>
                 </div>
 
-                <div :class="{'block': showingNavigationDropdown, 'hidden': !showingNavigationDropdown}" class="sm:hidden bg-white border-t border-gray-100">
-                    <div class="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')"> Główna Tablica </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('children.index')" :active="route().current('children.*')"> Profile Dzieci </ResponsiveNavLink>
-                    </div>
-
-                    <div class="pt-4 pb-1 border-t border-gray-200">
-                        <div class="px-4">
-                            <div class="font-bold text-base text-gray-800">{{ $page.props.auth.user.name }}</div>
-                            <div class="font-medium text-sm text-gray-500">{{ $page.props.auth.user.email }}</div>
+                <div
+                    v-show="showingNavigationDropdown"
+                    class="sm:hidden fixed inset-0 z-50 bg-white flex flex-col pt-20"
+                >
+                    <div class="flex-1 px-4 space-y-4 overflow-y-auto">
+                        <div class="border-b border-gray-100 pb-4 mb-4">
+                            <p class="text-xs font-black text-gray-400 uppercase tracking-widest px-4 mb-2">Nawigacja</p>
+                            <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')" class="text-xl font-bold py-4">
+                                🏠 Główna Tablica
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('children.index')" :active="route().current('children.*')" class="text-xl font-bold py-4">
+                                👦 Profile Dzieci
+                            </ResponsiveNavLink>
                         </div>
-                        <div class="mt-3 space-y-1 p-2">
-                            <ResponsiveNavLink :href="route('profile.edit')" class="rounded-lg"> Profil </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('logout')" method="post" as="button" class="rounded-lg text-red-600 font-bold"> Wyloguj się </ResponsiveNavLink>
+
+                        <div class="pt-4">
+                            <p class="text-xs font-black text-gray-400 uppercase tracking-widest px-4 mb-2">Użytkownik</p>
+                            <div class="px-4 py-2 mb-4">
+                                <div class="font-black text-lg text-gray-800">{{ $page.props.auth.user.name }}</div>
+                                <div class="font-medium text-sm text-gray-500">{{ $page.props.auth.user.email }}</div>
+                            </div>
+                            <ResponsiveNavLink :href="route('profile.edit')" class="text-lg font-bold"> 👤 Profil </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('logout')" method="post" as="button" class="text-lg font-black text-red-600">
+                                🚪 Wyloguj się
+                            </ResponsiveNavLink>
                         </div>
                     </div>
                 </div>
