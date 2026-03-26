@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Child;
+use App\Models\Pictogram;
+use App\Models\ClickLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ChildController extends Controller
@@ -34,6 +37,7 @@ class ChildController extends Controller
 
         return redirect()->route('children.index');
     }
+
     public function board(Child $child)
     {
         if ($child->user_id !== auth()->id()) {
@@ -41,7 +45,7 @@ class ChildController extends Controller
         }
 
         $pictograms = $child->pictograms()
-            ->with('category') // Pobierz dane o kategorii
+            ->with('category')
             ->withPivot('position')
             ->orderByPivot('position', 'asc')
             ->get();
@@ -70,12 +74,12 @@ class ChildController extends Controller
             'categories' => $categories
         ]);
     }
+
     public function reorder(Request $request, Child $child)
     {
-        $ids = $request->input('ids'); // tablica ID piktogramów
+        $ids = $request->input('ids');
 
         foreach ($ids as $index => $id) {
-
             $child->pictograms()->updateExistingPivot($id, [
                 'position' => $index
             ]);
@@ -83,16 +87,18 @@ class ChildController extends Controller
 
         return response()->json(['status' => 'success']);
     }
+
     public function manage(Child $child)
     {
         if ($child->user_id !== auth()->id()) {
-            abort(403);
+            abort(403, 'Unauthorized action.');
         }
 
         $categories = \App\Models\Category::with('pictograms')->get();
+
         $activePictogramIds = $child->pictograms()->pluck('pictograms.id')->toArray();
 
-        return Inertia::render('Children/Manage', [
+        return \Inertia\Inertia::render('Children/Manage', [
             'child' => $child,
             'categories' => $categories,
             'activePictogramIds' => $activePictogramIds
@@ -109,21 +115,47 @@ class ChildController extends Controller
             'pictogram_ids' => 'array',
         ]);
 
+
         $child->pictograms()->sync($request->pictogram_ids);
 
         return redirect()->route('children.index');
     }
-    public function logClick(\Illuminate\Http\Request $request, \App\Models\Child $child)
+    public function logClick(Request $request, Child $child)
     {
         $request->validate([
             'pictogram_id' => 'required|exists:pictograms,id',
         ]);
 
-        \App\Models\ClickLog::create([
+        ClickLog::create([
             'child_id' => $child->id,
             'pictogram_id' => $request->pictogram_id,
         ]);
 
         return response()->json(['status' => 'success']);
+    }
+    public function statistics()
+    {
+        $children = auth()->user()->children;
+        $statistics = [];
+
+        foreach ($children as $child) {
+            $stats = \App\Models\ClickLog::where('child_id', $child->id)
+                ->select('pictogram_id', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+                ->groupBy('pictogram_id')
+                ->orderByDesc('total')
+                ->limit(5)
+                ->with('pictogram')
+                ->get();
+
+            $statistics[] = [
+                'child' => $child,
+                'chartLabels' => $stats->map(fn($log) => $log->pictogram->name),
+                'chartData' => $stats->map(fn($log) => $log->total),
+            ];
+        }
+
+        return \Inertia\Inertia::render('Statistics/Index', [
+            'statistics' => $statistics
+        ]);
     }
 }

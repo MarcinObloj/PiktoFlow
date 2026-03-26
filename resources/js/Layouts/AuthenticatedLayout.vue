@@ -43,6 +43,9 @@ watch(showingNavigationDropdown, (value) => {
                                 <NavLink :href="route('children.index')" :active="route().current('children.*')" class="text-sm font-bold uppercase tracking-wider">
                                     Profile Dzieci
                                 </NavLink>
+                                <NavLink :href="route('statistics.index')" :active="route().current('statistics.index')" class="text-sm font-bold uppercase tracking-wider">
+                                    Statystyki
+                                </NavLink>
                             </div>
                         </div>
 
