@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'; // Dodano watch
+import { ref, watch } from 'vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
@@ -7,6 +7,11 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
 
 const showingNavigationDropdown = ref(false);
+
+const closeMenu = () => {
+    showingNavigationDropdown.value = false;
+    document.body.style.overflow = 'auto';
+};
 
 watch(showingNavigationDropdown, (value) => {
     if (value) {
@@ -80,17 +85,14 @@ watch(showingNavigationDropdown, (value) => {
                     </div>
                 </div>
 
-                <div
-                    v-show="showingNavigationDropdown"
-                    class="sm:hidden fixed inset-0 z-50 bg-white flex flex-col pt-20"
-                >
+                <div v-show="showingNavigationDropdown" class="sm:hidden fixed inset-0 z-50 bg-white flex flex-col pt-20">
                     <div class="flex-1 px-4 space-y-4 overflow-y-auto">
                         <div class="border-b border-gray-100 pb-4 mb-4">
                             <p class="text-xs font-black text-gray-400 uppercase tracking-widest px-4 mb-2">Nawigacja</p>
-                            <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')" class="text-xl font-bold py-4">
+                            <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')" @click="closeMenu" class="text-xl font-bold py-4">
                                 🏠 Główna Tablica
                             </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('children.index')" :active="route().current('children.*')" class="text-xl font-bold py-4">
+                            <ResponsiveNavLink :href="route('children.index')" :active="route().current('children.*')" @click="closeMenu" class="text-xl font-bold py-4">
                                 👦 Profile Dzieci
                             </ResponsiveNavLink>
                         </div>
@@ -101,8 +103,8 @@ watch(showingNavigationDropdown, (value) => {
                                 <div class="font-black text-lg text-gray-800">{{ $page.props.auth.user.name }}</div>
                                 <div class="font-medium text-sm text-gray-500">{{ $page.props.auth.user.email }}</div>
                             </div>
-                            <ResponsiveNavLink :href="route('profile.edit')" class="text-lg font-bold"> 👤 Profil </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('logout')" method="post" as="button" class="text-lg font-black text-red-600">
+                            <ResponsiveNavLink :href="route('profile.edit')" @click="closeMenu" class="text-lg font-bold"> 👤 Profil </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('logout')" method="post" as="button" @click="closeMenu" class="text-lg font-black text-red-600">
                                 🚪 Wyloguj się
                             </ResponsiveNavLink>
                         </div>

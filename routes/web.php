@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/children/{child}/manage', [ChildController::class, 'updateWords'])->name('children.update-words');
     Route::post('/children/{child}/reorder', [ChildController::class, 'reorder'])->name('children.reorder');
 
+    Route::post('/children/{child}/log-click', [ChildController::class, 'logClick'])->name('children.log-click');
     Route::get('/categories/create', function () {
         return Inertia::render('Categories/Create');
     })->name('categories.create');

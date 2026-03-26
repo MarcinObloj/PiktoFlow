@@ -113,4 +113,17 @@ class ChildController extends Controller
 
         return redirect()->route('children.index');
     }
+    public function logClick(\Illuminate\Http\Request $request, \App\Models\Child $child)
+    {
+        $request->validate([
+            'pictogram_id' => 'required|exists:pictograms,id',
+        ]);
+
+        \App\Models\ClickLog::create([
+            'child_id' => $child->id,
+            'pictogram_id' => $request->pictogram_id,
+        ]);
+
+        return response()->json(['status' => 'success']);
+    }
 }

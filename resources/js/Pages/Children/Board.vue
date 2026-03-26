@@ -1,25 +1,22 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
 import { ref, nextTick } from 'vue';
-import draggable from 'vuedraggable'; // 1. Import biblioteki
-import axios from 'axios'; // Importujemy axios do cichego zapisu
+import draggable from 'vuedraggable';
+import axios from 'axios';
 
 const props = defineProps({
     child: Object,
     categories: Array,
 });
 
-// 2. Tworzymy reaktywną kopię kategorii, by draggable mógł na niej pracować
 const localCategories = ref([...props.categories]);
 
 const sentence = ref([]);
 
-// 3. Funkcja zapisu kolejności po przeciągnięciu
 const handleDragEnd = (categoryId) => {
     const category = localCategories.value.find(c => c.id === categoryId);
     const ids = category.pictograms.map(p => p.id);
 
-    // Wysyłamy do trasy, którą dodaliśmy wcześniej w web.php
     axios.post(route('children.reorder', props.child.id), { ids })
         .then(() => {
             console.log(`Kolejność w kategorii ${category.name} zapisana.`);
@@ -40,6 +37,12 @@ const speak = (text) => {
 const addToSentence = (pictogram) => {
     sentence.value.push(pictogram);
     speak(pictogram.name);
+
+    axios.post(route('children.log-click', props.child.id), {
+        pictogram_id: pictogram.id
+    }).catch(error => {
+        console.error("Nie udało się zapisać statystyki kliknięcia", error);
+    });
 };
 
 const speakSentence = () => {
