@@ -63,6 +63,7 @@ class ChildController extends Controller
                         'id' => $p->id,
                         'name' => $p->name,
                         'image_path' => $p->image_path,
+                        'audio_path' => $p->audio_path,
                         'position' => $p->pivot->position,
                     ];
                 })

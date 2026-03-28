@@ -32,7 +32,7 @@ class PictogramController extends Controller
             'category_id' => 'required|exists:categories,id',
             'image' => 'nullable|image|max:2048',
             'image_url' => 'nullable|string',
-            'audio' => 'nullable|file|mimes:mp3,wav,ogg|max:4096', // Walidacja pliku audio
+            'audio' => 'nullable|file|mimes:mp3,wav,ogg,webm|max:4096', // Walidacja pliku audio
         ]);
 
         $finalImagePath = '';

@@ -19,8 +19,6 @@ const toggleEyetracker = () => {
     if (!isEyetrackerActive.value) {
         window.webgazer.setGazeListener((data, elapsedTime) => {
             if (data == null) return;
-
-
         }).begin();
 
         window.webgazer.showVideoPreview(true).showPredictionPoints(true);
@@ -42,10 +40,14 @@ const handleDragEnd = (categoryId) => {
         .catch(err => console.error("Błąd zapisu kolejności:", err));
 };
 
-const speak = (text) => {
-    if ('speechSynthesis' in window) {
+// --- INTELIGENTNY SYSTEM AUDIO ---
+const playPictogram = (pictogram) => {
+    if (pictogram.audio_path) {
+        const audio = new Audio(pictogram.audio_path);
+        audio.play();
+    } else if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
+        const utterance = new SpeechSynthesisUtterance(pictogram.name);
         utterance.lang = 'pl-PL';
         utterance.rate = 0.9;
         window.speechSynthesis.speak(utterance);
@@ -54,7 +56,8 @@ const speak = (text) => {
 
 const addToSentence = (pictogram) => {
     sentence.value.push(pictogram);
-    speak(pictogram.name);
+
+    playPictogram(pictogram);
 
     axios.post(route('children.log-click', props.child.id), {
         pictogram_id: pictogram.id
@@ -65,9 +68,31 @@ const addToSentence = (pictogram) => {
 
 const speakSentence = () => {
     if (sentence.value.length === 0) return;
-    const fullText = sentence.value.map(p => p.name).join(' ');
-    speak(fullText);
+    window.speechSynthesis.cancel();
+
+    const playNext = (index) => {
+        if (index >= sentence.value.length) return;
+
+        const p = sentence.value[index];
+
+        if (p.audio_path) {
+            const audio = new Audio(p.audio_path);
+            audio.onended = () => playNext(index + 1);
+            audio.play();
+        } else if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(p.name);
+            utterance.lang = 'pl-PL';
+            utterance.rate = 0.9;
+            utterance.onend = () => playNext(index + 1);
+            window.speechSynthesis.speak(utterance);
+        } else {
+            playNext(index + 1);
+        }
+    };
+
+    playNext(0);
 };
+// ---------------------------------
 
 const clearSentence = () => {
     sentence.value = [];
@@ -102,22 +127,18 @@ const verifyPin = () => {
     <Head :title="'Tablica - ' + child.name" />
 
     <div class="min-h-screen bg-white flex flex-col relative font-sans">
-        <div class="absolute top-4 right-4 z-40">
-            <button @click="openPinModal" class="text-gray-400 hover:text-gray-700 transition-colors flex items-center gap-1 bg-gray-50 px-3 py-2 rounded-full text-sm font-bold border border-gray-100 shadow-sm">
+
+        <div class="absolute top-4 right-4 z-40 flex gap-4">
+            <button @click="toggleEyetracker"
+                    :class="isEyetrackerActive ? 'bg-green-100 text-green-700 border-green-200' : 'bg-gray-50 text-gray-400 border-gray-100 hover:text-gray-700'"
+                    class="transition-colors flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border shadow-sm">
+                <span class="text-lg">👁️</span>
+                {{ isEyetrackerActive ? 'Kalibracja w toku...' : 'Włącz Eyetracker' }}
+            </button>
+
+            <button @click="openPinModal" class="text-gray-400 hover:text-gray-700 transition-colors flex items-center gap-1 bg-gray-50 px-4 py-2 rounded-full text-sm font-bold border border-gray-100 shadow-sm">
                 <span>🔒</span> Wyjdź
             </button>
-            <div class="absolute top-4 right-4 z-40 flex gap-4">
-                <button @click="toggleEyetracker"
-                        :class="isEyetrackerActive ? 'bg-green-100 text-green-700 border-green-200' : 'bg-gray-50 text-gray-400 border-gray-100 hover:text-gray-700'"
-                        class="transition-colors flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border shadow-sm">
-                    <span class="text-lg">👁️</span>
-                    {{ isEyetrackerActive ? 'Kalibracja w toku...' : 'Włącz Eyetracker' }}
-                </button>
-
-                <button @click="openPinModal" class="text-gray-400 hover:text-gray-700 transition-colors flex items-center gap-1 bg-gray-50 px-3 py-2 rounded-full text-sm font-bold border border-gray-100 shadow-sm">
-                    <span>🔒</span> Wyjdź
-                </button>
-            </div>
         </div>
 
         <div class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 pt-16">
