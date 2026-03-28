@@ -15,11 +15,13 @@ class Child extends Model
         'age',
         'hobbies',
         'avatar_path',
-        'is_cvi_mode'
+        'is_cvi_mode',
+        'daily_plan'
     ];
 
     protected $casts = [
         'is_cvi_mode' => 'boolean',
+        'daily_plan' => 'array',
     ];
 
     public function user()

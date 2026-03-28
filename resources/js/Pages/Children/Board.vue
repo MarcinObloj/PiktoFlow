@@ -24,9 +24,7 @@ const pictogramClasses = computed(() => (
 ));
 
 const localCategories = ref([...props.categories]);
-
 const sentence = ref([]);
-
 const isEyetrackerActive = ref(false);
 
 const toggleEyetracker = () => {
@@ -69,9 +67,7 @@ const playPictogram = (pictogram) => {
 
 const addToSentence = (pictogram) => {
     sentence.value.push(pictogram);
-
     playPictogram(pictogram);
-
     axios.post(route('children.log-click', props.child.id), {
         pictogram_id: pictogram.id
     }).catch(error => {
@@ -85,7 +81,6 @@ const speakSentence = () => {
 
     const playNext = (index) => {
         if (index >= sentence.value.length) return;
-
         const p = sentence.value[index];
 
         if (p.audio_path) {
@@ -102,7 +97,6 @@ const speakSentence = () => {
             playNext(index + 1);
         }
     };
-
     playNext(0);
 };
 
@@ -139,7 +133,6 @@ const verifyPin = () => {
     <Head :title="'Tablica - ' + child.name" />
 
     <div :class="boardClasses">
-
         <div class="absolute top-4 right-4 z-40 flex gap-4">
             <button @click="toggleEyetracker"
                     :class="[
@@ -157,25 +150,19 @@ const verifyPin = () => {
         </div>
 
         <div class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 pt-16">
-
             <div :class="isCvi ? 'bg-black border-4 border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.3)]' : 'bg-blue-50 border-4 border-blue-200 shadow-sm'"
                  class="rounded-3xl p-4 mb-8 transition-all">
-
                 <div class="flex items-center gap-4 min-h-[120px]">
-
                     <div :class="isCvi ? 'bg-black border-yellow-400/50' : 'bg-white border-blue-200'"
                          class="flex-1 flex flex-wrap gap-2 p-4 rounded-2xl border-2 border-dashed min-h-[120px] items-center text-gray-400">
                         <span v-if="sentence.length === 0">Ułóż zdanie klikając w obrazki...</span>
-
                         <div v-for="(p, index) in sentence" :key="index" @click="sentence.splice(index, 1)"
                              :class="isCvi ? 'border-yellow-400 bg-black' : 'border-gray-200 bg-white'"
                              class="border-2 rounded-xl p-2 w-24 h-24 flex flex-col items-center justify-center shadow-sm hover:bg-red-50 cursor-pointer">
                             <img v-if="p.image_path" :src="p.image_path" class="w-10 h-10 object-contain mb-1 rounded" />
-
                             <span :class="isCvi ? 'text-white' : 'text-gray-800'" class="text-xs font-bold text-center truncate w-full">{{ p.name }}</span>
                         </div>
                     </div>
-
                     <div class="flex flex-col gap-2">
                         <button @click="speakSentence" class="bg-blue-500 text-white p-4 rounded-2xl shadow-md h-16 w-16 active:scale-95 text-2xl">🔊</button>
                         <button @click="clearSentence" class="bg-red-500 text-white p-4 rounded-2xl shadow-md h-16 w-16 active:scale-95 text-2xl">🗑️</button>
@@ -184,28 +171,17 @@ const verifyPin = () => {
             </div>
 
             <div v-for="category in localCategories" :key="category.id" class="mb-10">
-
                 <h3 :class="isCvi ? 'text-yellow-400 font-black' : 'font-bold text-lg'"
                     class="text-xl mb-4 uppercase tracking-wider px-2"
                     :style="!isCvi ? { color: category.color } : {}">
                     {{ category.name }}
                 </h3>
 
-                <draggable
-                    v-model="category.pictograms"
-                    @end="handleDragEnd(category.id)"
-                    item-key="id"
-                    class="flex flex-wrap gap-4"
-                    ghost-class="opacity-30"
-                    :animation="250"
-                >
+                <draggable v-model="category.pictograms" @end="handleDragEnd(category.id)" item-key="id" class="flex flex-wrap gap-4" ghost-class="opacity-30" :animation="250">
                     <template #item="{ element }">
-
                         <div @click="addToSentence(element)" :class="pictogramClasses">
-
                             <img v-if="element.image_path" :src="element.image_path" class="w-16 h-16 sm:w-20 sm:h-20 object-contain mb-2 rounded" />
                             <div v-else class="text-5xl sm:text-6xl mb-2">🖼️</div>
-
                             <span :class="isCvi ? 'text-white' : 'text-gray-800'" class="text-lg sm:text-xl font-bold text-center leading-tight">{{ element.name }}</span>
                         </div>
                     </template>
@@ -213,26 +189,18 @@ const verifyPin = () => {
             </div>
         </div>
 
-        <div v-if="showPinModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-
-            <div :class="isCvi ? 'bg-black border-4 border-yellow-400 text-white shadow-[0_0_30px_rgba(250,204,21,0.5)]' : 'bg-white border-4 border-gray-100 text-gray-900 shadow-2xl'"
-                 class="rounded-[2rem] p-8 max-w-sm w-full text-center">
+        <div v-if="showPinModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <div :class="[isCvi ? 'bg-black border-yellow-400' : 'bg-white border-gray-100', 'rounded-3xl p-8 max-w-sm w-full text-center border-4 shadow-2xl flex flex-col']">
                 <div class="text-6xl mb-4">🔒</div>
-                <h3 class="text-2xl font-black mb-2">Blokada Rodzicielska</h3>
-
-                <input ref="pinInputRef" v-model="pin" type="password" maxlength="4"
-                       :class="isCvi ? 'bg-black border-yellow-400 text-white' : 'bg-white border-gray-200 text-gray-900'"
-                       class="w-full text-center text-4xl tracking-[0.5em] py-4 rounded-2xl border-2 outline-none mb-2" @keyup.enter="verifyPin" />
-                <p class="text-red-500 text-sm h-6">{{ pinError }}</p>
-                <div class="flex gap-3 mt-6">
-                    <button @click="closePinModal"
-                            :class="isCvi ? 'bg-gray-800' : 'bg-gray-100'"
-                            class="flex-1 py-4 font-bold rounded-2xl">Anuluj</button>
-                    <button @click="verifyPin"
-                            :class="isCvi ? 'bg-yellow-500 text-black shadow-[0_0_15px_rgba(250,204,21,0.5)]' : 'bg-blue-600 text-white'"
-                            class="flex-1 py-4 font-bold rounded-2xl">Odblokuj</button>
+                <h3 :class="[isCvi ? 'text-yellow-400' : 'text-gray-900', 'text-2xl font-black mb-6']">Blokada Rodzicielska</h3>
+                <input ref="pinInputRef" v-model="pin" type="password" maxlength="4" :class="[isCvi ? 'bg-black border-yellow-400 text-yellow-400' : 'bg-gray-50 border-gray-300 text-gray-900', 'w-full text-center text-4xl tracking-[0.5em] py-4 rounded-xl border-2 outline-none mb-6']" @keyup.enter="verifyPin" />
+                <p v-if="pinError" class="text-red-500 text-sm mb-4">{{ pinError }}</p>
+                <div class="grid grid-cols-2 gap-4 w-full">
+                    <button @click="closePinModal" :class="[isCvi ? 'bg-gray-900 text-yellow-500 border-2 border-yellow-500' : 'bg-gray-200 text-gray-800 hover:bg-gray-300', 'py-4 font-bold rounded-xl transition']">Anuluj</button>
+                    <button @click="verifyPin" :class="[isCvi ? 'bg-yellow-400 text-black hover:bg-yellow-500' : 'bg-blue-600 text-white hover:bg-blue-700', 'py-4 font-bold rounded-xl transition']">Odblokuj</button>
                 </div>
             </div>
         </div>
+
     </div>
 </template>

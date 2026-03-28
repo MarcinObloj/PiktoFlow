@@ -18,6 +18,7 @@ const isRecording = ref(false);
 const audioUrl = ref(null);
 let mediaRecorder = null;
 let audioChunks = [];
+const isFakeLoading = ref(false);
 
 const startRecording = async () => {
     try {
@@ -63,7 +64,14 @@ const clearRecording = () => {
 };
 
 const submit = () => {
-    form.post(route('pictograms.store'));
+    isFakeLoading.value = true;
+    setTimeout(() => {
+        form.post(route('pictograms.store'), {
+            onFinish: () => {
+                isFakeLoading.value = false;
+            }
+        });
+    }, 1500);
 };
 </script>
 
@@ -78,7 +86,7 @@ const submit = () => {
         </template>
 
         <div class="py-12">
-            <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
+            <div class="max-w-2xl mx-auto sm:px-6 lg:px-8 relative">
                 <div class="bg-white overflow-hidden shadow-sm rounded-3xl p-8 border border-gray-100">
                     <form @submit.prevent="submit" class="flex flex-col gap-6">
 
@@ -148,8 +156,8 @@ const submit = () => {
                             <Link :href="route('dashboard')" class="px-6 py-4 bg-gray-100 font-bold rounded-2xl text-gray-700 hover:bg-gray-200 transition-colors">
                                 Anuluj
                             </Link>
-                            <button type="submit" :disabled="form.processing" class="px-6 py-4 bg-blue-600 font-bold rounded-2xl text-white hover:bg-blue-700 disabled:opacity-50 shadow-md shadow-blue-200 transition-all active:scale-95">
-                                {{ form.processing ? 'Wgrywanie...' : '💾 Zapisz piktogram' }}
+                            <button type="submit" :disabled="isFakeLoading || form.processing" class="px-6 py-4 bg-blue-600 font-bold rounded-2xl text-white hover:bg-blue-700 disabled:opacity-50 shadow-md shadow-blue-200 transition-all active:scale-95">
+                                💾 Zapisz piktogram
                             </button>
                         </div>
 
@@ -157,5 +165,12 @@ const submit = () => {
                 </div>
             </div>
         </div>
+
+        <div v-if="isFakeLoading || form.processing" class="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-white/90 backdrop-blur-md transition-all duration-300">
+            <div class="text-7xl animate-bounce mb-6">🚀</div>
+            <h2 class="text-3xl font-black text-blue-600 mb-2">Tworzenie magii...</h2>
+            <p class="text-gray-500 font-bold text-lg">Zapisuję Twój piktogram w bazie danych!</p>
+        </div>
+
     </AuthenticatedLayout>
 </template>

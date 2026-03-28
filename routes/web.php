@@ -72,6 +72,9 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('dashboard');
     })->name('categories.store');
 
+    Route::get('/children/{child}/schedule/manage', [\App\Http\Controllers\ChildController::class, 'manageSchedule'])->name('children.manage-schedule');
+    Route::post('/children/{child}/schedule', [\App\Http\Controllers\ChildController::class, 'updateSchedule'])->name('children.update-schedule');
+    Route::get('/children/{child}/schedule/board', [\App\Http\Controllers\ChildController::class, 'scheduleBoard'])->name('children.schedule-board');
     Route::delete('/categories/{category}', function (Category $category) {
         if ($category->user_id === auth()->id()) {
             $category->delete();

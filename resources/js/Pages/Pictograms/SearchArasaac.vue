@@ -12,6 +12,7 @@ const searchQuery = ref('');
 const results = ref([]);
 const loading = ref(false);
 const selectedCategoryId = ref('');
+const showCategoryAlert = ref(false);
 
 const search = async () => {
     if (searchQuery.value.length < 2) return;
@@ -28,7 +29,7 @@ const search = async () => {
 
 const addPictogram = (id, name) => {
     if (!selectedCategoryId.value) {
-        alert("Wybierz najpierw kategorię!");
+        showCategoryAlert.value = true;
         return;
     }
 
@@ -59,17 +60,30 @@ const addPictogram = (id, name) => {
                     Szukaj w bazie
                 </button>
 
-                <div v-if="loading" class="text-center py-10">Szukanie...</div>
+                <div v-if="loading" class="text-center py-10 font-bold text-gray-500">Szukanie...</div>
 
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-                    <div v-for="pic in results" :key="pic._id" class="border border-gray-100 p-4 rounded-2xl flex flex-col items-center hover:bg-blue-50 transition group relative">
+                    <div v-for="pic in results" :key="pic._id" class="border border-gray-100 p-4 rounded-2xl flex flex-col items-center hover:bg-blue-50 transition group relative shadow-sm hover:shadow-md">
                         <img :src="`https://static.arasaac.org/pictograms/${pic._id}/${pic._id}_300.png`" class="w-24 h-24 object-contain mb-3" />
-                        <span class="font-bold text-sm text-center">{{ searchQuery }}</span>
-                        <button @click="addPictogram(pic._id, searchQuery)" class="mt-3 bg-green-500 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-green-600">
+                        <span class="font-bold text-sm text-center text-gray-800">{{ searchQuery }}</span>
+                        <button @click="addPictogram(pic._id, searchQuery)" class="mt-3 bg-green-500 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-green-600 active:scale-95 transition-transform w-full">
                             Dodaj +
                         </button>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div v-if="showCategoryAlert" class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4" @click.self="showCategoryAlert = false">
+            <div class="bg-white rounded-[2rem] p-8 max-w-sm w-full text-center shadow-2xl transform transition-all">
+                <div class="text-6xl mb-4">⚠️</div>
+                <h3 class="text-2xl font-black text-gray-900 mb-2">Brak kategorii</h3>
+                <p class="text-gray-600 mb-8 font-medium leading-relaxed">
+                    Zanim dodasz obrazek do swojej bazy, wybierz najpierw kategorię z rozwijanej listy na górze.
+                </p>
+                <button @click="showCategoryAlert = false" class="w-full py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-md active:scale-95">
+                    OK, rozumiem
+                </button>
             </div>
         </div>
     </AuthenticatedLayout>

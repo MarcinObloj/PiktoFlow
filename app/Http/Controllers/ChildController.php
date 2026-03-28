@@ -246,4 +246,56 @@ class ChildController extends Controller
 
         return redirect()->back()->with('success', 'Ustawienia profilu zapisane.');
     }
+    public function manageSchedule(Child $child)
+    {
+        if ($child->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $pictograms = $child->pictograms()->get();
+
+        return \Inertia\Inertia::render('Children/ManageSchedule', [
+            'child' => $child,
+            'availablePictograms' => $pictograms
+        ]);
+    }
+
+    public function updateSchedule(Request $request, Child $child)
+    {
+        if ($child->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'schedule' => 'array',
+        ]);
+
+        $child->update([
+            'daily_plan' => $request->schedule
+        ]);
+
+        return redirect()->route('children.index');
+    }
+
+    public function scheduleBoard(Child $child)
+    {
+        if ($child->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $planIds = $child->daily_plan ?? [];
+        $planPictograms = [];
+
+        if (!empty($planIds)) {
+            $unsorted = \App\Models\Pictogram::whereIn('id', $planIds)->get()->keyBy('id');
+            $planPictograms = collect($planIds)->map(function($id) use ($unsorted) {
+                return $unsorted->get($id);
+            })->filter()->values();
+        }
+
+        return \Inertia\Inertia::render('Children/ScheduleBoard', [
+            'child' => $child,
+            'planPictograms' => $planPictograms
+        ]);
+    }
 }
