@@ -12,6 +12,7 @@ class Pictogram extends Model
     protected $fillable = [
         'name',
         'image_path',
+        'audio_path',
         'category_id',
         'is_custom'
     ];

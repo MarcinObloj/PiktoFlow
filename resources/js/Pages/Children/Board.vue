@@ -13,6 +13,24 @@ const localCategories = ref([...props.categories]);
 
 const sentence = ref([]);
 
+const isEyetrackerActive = ref(false);
+
+const toggleEyetracker = () => {
+    if (!isEyetrackerActive.value) {
+        window.webgazer.setGazeListener((data, elapsedTime) => {
+            if (data == null) return;
+
+
+        }).begin();
+
+        window.webgazer.showVideoPreview(true).showPredictionPoints(true);
+        isEyetrackerActive.value = true;
+    } else {
+        window.webgazer.end();
+        isEyetrackerActive.value = false;
+    }
+};
+
 const handleDragEnd = (categoryId) => {
     const category = localCategories.value.find(c => c.id === categoryId);
     const ids = category.pictograms.map(p => p.id);
@@ -88,6 +106,18 @@ const verifyPin = () => {
             <button @click="openPinModal" class="text-gray-400 hover:text-gray-700 transition-colors flex items-center gap-1 bg-gray-50 px-3 py-2 rounded-full text-sm font-bold border border-gray-100 shadow-sm">
                 <span>🔒</span> Wyjdź
             </button>
+            <div class="absolute top-4 right-4 z-40 flex gap-4">
+                <button @click="toggleEyetracker"
+                        :class="isEyetrackerActive ? 'bg-green-100 text-green-700 border-green-200' : 'bg-gray-50 text-gray-400 border-gray-100 hover:text-gray-700'"
+                        class="transition-colors flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border shadow-sm">
+                    <span class="text-lg">👁️</span>
+                    {{ isEyetrackerActive ? 'Kalibracja w toku...' : 'Włącz Eyetracker' }}
+                </button>
+
+                <button @click="openPinModal" class="text-gray-400 hover:text-gray-700 transition-colors flex items-center gap-1 bg-gray-50 px-3 py-2 rounded-full text-sm font-bold border border-gray-100 shadow-sm">
+                    <span>🔒</span> Wyjdź
+                </button>
+            </div>
         </div>
 
         <div class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 pt-16">

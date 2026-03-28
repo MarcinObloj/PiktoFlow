@@ -26,6 +26,7 @@
         @routes
         @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
         @inertiaHead
+        <script src="https://webgazer.cs.brown.edu/webgazer.js" defer></script>
     </head>
     <body class="font-sans antialiased">
         @inertia

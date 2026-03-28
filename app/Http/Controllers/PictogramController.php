@@ -30,24 +30,32 @@ class PictogramController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'image' => 'nullable|image|max:2048', // Plik jest opcjonalny, jeśli mamy URL
-            'image_url' => 'nullable|string',     // URL jest opcjonalny, jeśli mamy plik
+            'image' => 'nullable|image|max:2048',
+            'image_url' => 'nullable|string',
+            'audio' => 'nullable|file|mimes:mp3,wav,ogg|max:4096', // Walidacja pliku audio
         ]);
 
-        $finalPath = '';
+        $finalImagePath = '';
+        $finalAudioPath = null;
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('custom_pictograms', 'public');
-            $finalPath = '/storage/' . $path;
+            $finalImagePath = '/storage/' . $path;
         }
         elseif ($request->image_url) {
-            $finalPath = $request->image_url;
+            $finalImagePath = $request->image_url;
+        }
+
+        if ($request->hasFile('audio')) {
+            $audioPath = $request->file('audio')->store('custom_audio', 'public');
+            $finalAudioPath = '/storage/' . $audioPath;
         }
 
         Pictogram::create([
             'name' => $request->name,
             'category_id' => $request->category_id,
-            'image_path' => $finalPath,
+            'image_path' => $finalImagePath,
+            'audio_path' => $finalAudioPath,
             'is_custom' => true,
         ]);
 
