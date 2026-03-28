@@ -9,7 +9,16 @@ class Child extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'name'];
+    protected $fillable = [
+        'user_id',
+        'name',
+        'avatar_path',
+        'is_cvi_mode'
+    ];
+
+    protected $casts = [
+        'is_cvi_mode' => 'boolean',
+    ];
 
     public function user()
     {

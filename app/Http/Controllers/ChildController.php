@@ -8,7 +8,7 @@ use App\Models\ClickLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
-
+use Illuminate\Support\Facades\Storage;
 class ChildController extends Controller
 {
     public function index()
@@ -158,5 +158,36 @@ class ChildController extends Controller
         return \Inertia\Inertia::render('Statistics/Index', [
             'statistics' => $statistics
         ]);
+    }
+    public function update(Request $request, Child $child)
+    {
+        if ($child->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'avatar' => 'nullable|image|max:2048',
+            'is_cvi_mode' => 'required|boolean',
+        ]);
+
+        $data = [
+            'name' => $request->name,
+            'is_cvi_mode' => $request->is_cvi_mode,
+        ];
+
+        if ($request->hasFile('avatar')) {
+            if ($child->avatar_path) {
+                $oldPath = str_replace('/storage/', '', $child->avatar_path);
+                Storage::disk('public')->delete($oldPath);
+            }
+
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $data['avatar_path'] = '/storage/' . $path;
+        }
+
+        $child->update($data);
+
+        return redirect()->back()->with('success', 'Ustawienia profilu zapisane.');
     }
 }

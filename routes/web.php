@@ -42,7 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/pictograms/arasaac', [PictogramController::class, 'searchArasaac'])->name('pictograms.arasaac');
     Route::post('/pictograms', [PictogramController::class, 'store'])->name('pictograms.store');
     Route::delete('/pictograms/{pictogram}', [PictogramController::class, 'destroy'])->name('pictograms.destroy');
-
+    Route::post('/children/{child}/update', [\App\Http\Controllers\ChildController::class, 'update'])->name('children.update');
     Route::get('/arasaac/search', [ArasaacController::class, 'search'])->name('arasaac.search');
 
     Route::get('/children', [ChildController::class, 'index'])->name('children.index');
