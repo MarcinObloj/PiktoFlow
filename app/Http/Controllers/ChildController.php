@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
+use App\Models\Category;
 class ChildController extends Controller
 {
     public function index()
@@ -29,13 +31,67 @@ class ChildController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'age' => 'nullable|integer|min:1|max:99',
+            'hobbies' => 'nullable|string|max:255',
         ]);
 
-        auth()->user()->children()->create([
+        $child = auth()->user()->children()->create([
             'name' => $request->name,
+            'age' => $request->age,
+            'hobbies' => $request->hobbies,
         ]);
+
+        if ($request->hobbies) {
+            $hobbiesArray = array_map('trim', explode(',', $request->hobbies));
+
+            $category = Category::firstOrCreate(
+                ['name' => 'Zainteresowania'],
+                ['color' => '#8b5cf6']
+            );
+
+            $attachedIds = [];
+
+            foreach ($hobbiesArray as $hobby) {
+                if (empty($hobby)) continue;
+
+                $response = Http::get("https://api.arasaac.org/api/pictograms/pl/search/" . urlencode($hobby));
+
+                if ($response->successful() && count($response->json()) > 0) {
+                    $picData = $response->json()[0];
+                    $arasaacId = $picData['_id'];
+                    $imageUrl = "https://static.arasaac.org/pictograms/{$arasaacId}/{$arasaacId}_300.png";
+
+                    $pictogram = Pictogram::firstOrCreate(
+                        ['name' => ucfirst($hobby)],
+                        ['category_id' => $category->id, 'image_path' => $imageUrl, 'is_custom' => false]
+                    );
+
+                    $attachedIds[] = $pictogram->id;
+                }
+            }
+
+            if (!empty($attachedIds)) {
+                $child->pictograms()->syncWithoutDetaching($attachedIds);
+            }
+        }
 
         return redirect()->route('children.index');
+    }
+
+    public function destroy(Child $child)
+    {
+        if ($child->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        if ($child->avatar_path) {
+            $oldPath = str_replace('/storage/', '', $child->avatar_path);
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+        }
+
+        $child->delete();
+
+        return redirect()->back();
     }
 
     public function board(Child $child)

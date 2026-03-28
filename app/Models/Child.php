@@ -12,6 +12,8 @@ class Child extends Model
     protected $fillable = [
         'user_id',
         'name',
+        'age',
+        'hobbies',
         'avatar_path',
         'is_cvi_mode'
     ];

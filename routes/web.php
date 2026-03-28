@@ -57,7 +57,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/categories/create', function () {
         return Inertia::render('Categories/Create');
     })->name('categories.create');
-
+    Route::delete('/children/{child}', [\App\Http\Controllers\ChildController::class, 'destroy'])->name('children.destroy');
     Route::post('/categories', function (Request $request) {
         $request->validate([
             'name' => 'required|string|max:255',

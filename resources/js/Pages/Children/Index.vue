@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 defineProps({
@@ -8,6 +8,7 @@ defineProps({
 });
 
 const showSettingsModal = ref(false);
+const showDeleteModal = ref(false);
 const selectedChild = ref(null);
 const avatarPreview = ref(null);
 
@@ -32,12 +33,31 @@ const closeSettingsModal = () => {
     form.reset();
 };
 
+const openDeleteModal = () => {
+    showSettingsModal.value = false;
+    showDeleteModal.value = true;
+};
+
+const closeDeleteModal = () => {
+    showDeleteModal.value = false;
+    showSettingsModal.value = true;
+};
+
 const handleAvatarChange = (event) => {
     const file = event.target.files[0];
     if (file) {
         form.avatar = file;
         avatarPreview.value = URL.createObjectURL(file);
     }
+};
+
+const confirmDelete = () => {
+    router.delete(route('children.destroy', selectedChild.value.id), {
+        onSuccess: () => {
+            showDeleteModal.value = false;
+            selectedChild.value = null;
+        },
+    });
 };
 
 const submitUpdate = () => {
@@ -102,7 +122,7 @@ const submitUpdate = () => {
             </div>
         </div>
 
-        <div v-if="showSettingsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4" @click.self="closeSettingsModal">
+        <div v-if="showSettingsModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4" @click.self="closeSettingsModal">
             <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
                 <h3 class="text-2xl font-bold text-gray-900 mb-6">⚙️ Ustawienia: {{ selectedChild?.name }}</h3>
 
@@ -135,16 +155,41 @@ const submitUpdate = () => {
                         </label>
                     </div>
 
-                    <div class="flex justify-end gap-3 mt-4">
-                        <button type="button" @click="closeSettingsModal" class="px-4 py-2 bg-gray-100 font-bold rounded-md text-gray-700 hover:bg-gray-200">
-                            Anuluj
+                    <div class="flex justify-between items-center mt-4 pt-6 border-t border-gray-100">
+                        <button type="button" @click="openDeleteModal" class="px-4 py-2 bg-red-50 font-bold rounded-md text-red-600 hover:bg-red-100">
+                            🗑️ Usuń profil
                         </button>
-                        <button type="submit" :disabled="form.processing" class="px-4 py-2 bg-blue-600 font-bold rounded-md text-white hover:bg-blue-700 disabled:opacity-50">
-                            Zapisz
-                        </button>
+
+                        <div class="flex gap-3">
+                            <button type="button" @click="closeSettingsModal" class="px-4 py-2 bg-gray-100 font-bold rounded-md text-gray-700 hover:bg-gray-200">
+                                Anuluj
+                            </button>
+                            <button type="submit" :disabled="form.processing" class="px-4 py-2 bg-blue-600 font-bold rounded-md text-white hover:bg-blue-700 disabled:opacity-50">
+                                Zapisz
+                            </button>
+                        </div>
                     </div>
 
                 </form>
+            </div>
+        </div>
+
+        <div v-if="showDeleteModal" class="fixed inset-0 z-[110] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
+            <div class="bg-white rounded-[2rem] p-8 sm:p-10 max-w-md w-full shadow-2xl text-center transform transition-all border-4 border-red-50 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-red-500 rounded-full -mr-16 -mt-16 opacity-10"></div>
+                <div class="text-6xl mb-6">🗑️</div>
+                <h3 class="text-2xl font-black text-gray-900 mb-2">Usuń profil dziecka</h3>
+                <p class="text-gray-600 mb-8 font-medium leading-relaxed italic">
+                    Czy na pewno chcesz usunąć profil <strong>{{ selectedChild?.name }}</strong>? Te dane przepadną bezpowrotnie.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-3 mt-6">
+                    <button @click="closeDeleteModal" class="flex-1 px-4 py-4 bg-gray-100 text-gray-700 font-bold rounded-2xl hover:bg-gray-200 transition active:scale-95">
+                        Anuluj
+                    </button>
+                    <button @click="confirmDelete" class="flex-1 px-4 py-4 bg-red-500 text-white font-bold rounded-2xl hover:bg-red-600 transition shadow-lg shadow-red-200 active:scale-95">
+                        Usuń trwale
+                    </button>
+                </div>
             </div>
         </div>
 
