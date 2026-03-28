@@ -1,14 +1,24 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 const form = useForm({
     name: '',
     color: '#3B82F6',
 });
 
+const isFakeLoading = ref(false);
+
 const submit = () => {
-    form.post(route('categories.store'));
+    isFakeLoading.value = true;
+    setTimeout(() => {
+        form.post(route('categories.store'), {
+            onFinish: () => {
+                isFakeLoading.value = false;
+            }
+        });
+    }, 1500);
 };
 </script>
 
@@ -24,7 +34,7 @@ const submit = () => {
         </template>
 
         <div class="py-12">
-            <div class="max-w-xl mx-auto sm:px-6 lg:px-8">
+            <div class="max-w-xl mx-auto sm:px-6 lg:px-8 relative">
                 <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
 
                     <div class="flex items-center gap-4 mb-8">
@@ -65,7 +75,7 @@ const submit = () => {
 
                         <button
                             type="submit"
-                            :disabled="form.processing"
+                            :disabled="isFakeLoading || form.processing"
                             class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-4 rounded-xl shadow-lg transition-all disabled:opacity-50 mt-4 active:scale-95"
                         >
                             Zapisz kategorię
@@ -75,5 +85,12 @@ const submit = () => {
                 </div>
             </div>
         </div>
+
+        <div v-if="isFakeLoading || form.processing" class="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-white/90 backdrop-blur-md transition-all duration-300">
+            <div class="text-7xl animate-bounce mb-6">📁</div>
+            <h2 class="text-3xl font-black text-blue-600 mb-2">Tworzenie kategorii...</h2>
+            <p class="text-gray-500 font-bold text-lg">Zapisuję nową grupę słów w Twojej bibliotece!</p>
+        </div>
+
     </AuthenticatedLayout>
 </template>

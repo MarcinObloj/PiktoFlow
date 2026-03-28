@@ -13,6 +13,7 @@ const results = ref([]);
 const loading = ref(false);
 const selectedCategoryId = ref('');
 const showCategoryAlert = ref(false);
+const isFakeLoading = ref(false);
 
 const search = async () => {
     if (searchQuery.value.length < 2) return;
@@ -33,18 +34,25 @@ const addPictogram = (id, name) => {
         return;
     }
 
-    router.post(route('pictograms.store'), {
-        name: name,
-        category_id: selectedCategoryId.value,
-        image_url: `https://static.arasaac.org/pictograms/${id}/${id}_300.png`
-    });
+    isFakeLoading.value = true;
+    setTimeout(() => {
+        router.post(route('pictograms.store'), {
+            name: name,
+            category_id: selectedCategoryId.value,
+            image_url: `https://static.arasaac.org/pictograms/${id}/${id}_300.png`
+        }, {
+            onFinish: () => {
+                isFakeLoading.value = false;
+            }
+        });
+    }, 1500);
 };
 </script>
 
 <template>
     <Head title="Szukaj w ARASAAC" />
     <AuthenticatedLayout>
-        <div class="py-12 px-4 max-w-5xl mx-auto">
+        <div class="py-12 px-4 max-w-5xl mx-auto relative">
             <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
                 <h2 class="text-3xl font-black mb-6">🔍 Znajdź Piktogram ARASAAC</h2>
 
@@ -85,6 +93,12 @@ const addPictogram = (id, name) => {
                     OK, rozumiem
                 </button>
             </div>
+        </div>
+
+        <div v-if="isFakeLoading" class="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-white/90 backdrop-blur-md transition-all duration-300">
+            <div class="text-7xl animate-bounce mb-6">📥</div>
+            <h2 class="text-3xl font-black text-blue-600 mb-2">Pobieranie obrazka...</h2>
+            <p class="text-gray-500 font-bold text-lg">Dodaję piktogram z bazy ARASAAC do Twojego konta!</p>
         </div>
     </AuthenticatedLayout>
 </template>
