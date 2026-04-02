@@ -11,8 +11,7 @@ RUN composer install --no-dev --optimize-autoloader
 
 # 2. Instalacja Node.js i budowanie Vue (Frontend)
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs
-RUN npm install && npm run build
-
+RUN npm install --legacy-peer-deps && npm run build
 # 3. Nadanie uprawnień do zapisu dla Laravela
 RUN chown -R application:application /app/storage /app/bootstrap/cache
 
