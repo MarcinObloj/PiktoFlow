@@ -41,7 +41,7 @@ Aby uruchomić aplikację w swoim środowisku lokalnym za pomocą Docker / Larav
 
 **1. Sklonuj repozytorium**
 ```bash
-git clone [https://github.com/TwojLogin/PiktoFlow.git](https://github.com/TwojLogin/PiktoFlow.git)
+git clone [https://github.com/MarcinObloj/PiktoFlow.git](https://github.com/MarcinObloj/PiktoFlow.git)
 cd PiktoFlow
 ```
 **2. Zainstaluj zależności PHP**
