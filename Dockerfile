@@ -1,4 +1,4 @@
-FROM webdevops/php-nginx:8.3
+FROM webdevops/php-nginx:8.4
 
 # Ustawiamy katalog publiczny Laravela jako główny folder dla serwera WWW
 ENV WEB_DOCUMENT_ROOT=/app/public
