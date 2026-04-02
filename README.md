@@ -44,22 +44,22 @@ Aby uruchomić aplikację w swoim środowisku lokalnym za pomocą Docker / Larav
 git clone [https://github.com/TwojLogin/PiktoFlow.git](https://github.com/TwojLogin/PiktoFlow.git)
 cd PiktoFlow
 ```
-**2. Zainstaluj zależności PHP
+**2. Zainstaluj zależności PHP**
 
 ```bash
 composer install
 ```
-**3. Skonfiguruj plik środowiskowy
+**3. Skonfiguruj plik środowiskowy**
 
 ```bash
 cp .env.example .env
 ```
-**4. Uruchom kontenery (Laravel Sail)
+**4. Uruchom kontenery (Laravel Sail)**
 
 ```bash
 ./vendor/bin/sail up -d
 ```
-**5. Wygeneruj klucz aplikacji i zmigruj bazę danych
+**5. Wygeneruj klucz aplikacji i zmigruj bazę danych**
 
 ```bash
 
@@ -67,15 +67,15 @@ cp .env.example .env
 ./vendor/bin/sail artisan migrate
 ./vendor/bin/sail artisan storage:link
 ```
-**6. Zainstaluj i skompiluj zasoby frontendowe
+**6. Zainstaluj i skompiluj zasoby frontendowe**
 
 ```bash
 ./vendor/bin/sail npm install
 ./vendor/bin/sail npm run dev
 ```
-**Aplikacja będzie dostępna w przeglądarce pod adresem: http://localhost.
+**Aplikacja będzie dostępna w przeglądarce pod adresem: http://localhost.**
 
-**Struktura Aplikacji
+**Struktura Aplikacji**
 Dashboard / Moje Dzieci: Centralny punkt zarządzania profilami podopiecznych (edycja awatara, przełącznik trybu CVI).
 
 Tablica (Board): Główny ekran komunikacyjny dla dziecka. Obsługuje przeciąganie (Drag&Drop), odtwarzanie własnych nagrań i syntezę mowy.
