@@ -1,59 +1,82 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# PiktoFlow - Nowoczesna Platforma AAC
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+PiktoFlow to zaawansowana, webowa aplikacja do komunikacji wspomagającej i alternatywnej (AAC - Augmentative and Alternative Communication). Została stworzona z myślą o dzieciach w spektrum autyzmu, z porażeniem mózgowym oraz innymi trudnościami w komunikacji werbalnej. 
 
-## About Laravel
+Aplikacja łączy w sobie intuicyjny interfejs dla dziecka z potężnym panelem zarządzania dla rodzica lub terapeuty, oferując funkcje niespotykane w wielu komercyjnych rozwiązaniach.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Główne Funkcje
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+PiktoFlow nie jest zwykłą tablicą obrazkową. To kompleksowe narzędzie terapeutyczne wyposażone w:
 
-## Learning Laravel
+* **Inteligentny System Audio:** Tablica potrafi budować całe zdania, płynnie łącząc standardowy syntezator mowy (Text-to-Speech) z własnymi nagraniami audio dodanymi przez opiekuna (nagrywanymi bezpośrednio w przeglądarce za pomocą Web MediaRecorder API).
+* **CVI Mode (Wysoki Kontrast):** Dedykowany tryb dla dzieci z korowymi zaburzeniami widzenia. Zmienia układ kolorystyczny na głęboką czerń z jaskrawo żółtymi elementami, maksymalizując widoczność i skupienie.
+* **Wsparcie dla Eyetrackera:** Wbudowana integracja z WebGazer.js pozwala na obsługę tablicy za pomocą wzroku, co otwiera aplikację na dzieci ze znaczną niepełnosprawnością ruchową.
+* **Wizualny Plan Dnia:** Dedykowany moduł prezentujący sekwencje "Najpierw -> Potem -> Następnie", redukujący lęk u dzieci ze spektrum autyzmu poprzez budowanie przewidywalności.
+* **Generator Tablic Offline:** Możliwość wygenerowania i wydrukowania (do PDF) idealnie sformatowanej siatki piktogramów, gotowej do zalaminowania i używania w miejscach bez dostępu do elektroniki.
+* **Integracja z API ARASAAC:** Wbudowana wyszukiwarka ponad 10 000 darmowych piktogramów z hiszpańskiej bazy ARASAAC. System potrafi również automatycznie dobrać i przypisać początkowe obrazki na podstawie hobby wpisanego podczas tworzenia profilu dziecka.
+* **Blokada Rodzicielska:** Moduły ustawień i wychodzenia z tablicy są zabezpieczone kodem PIN, aby dziecko nie mogło przypadkowo opuścić środowiska komunikacyjnego.
+* **Analityka i Statystyki:** System w tle loguje kliknięcia w poszczególne piktogramy, co w przyszłości pozwala terapeutom analizować najczęściej używane słowa i postępy w komunikacji.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Stack Technologiczny
 
-## Laravel Sponsors
+Projekt opiera się na nowoczesnej architekturze połączonej (monolit z reaktywnym frontendem), gwarantującej błyskawiczne działanie bez przeładowywania stron (SPA).
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+| Warstwa | Technologie |
+| :--- | :--- |
+| **Frontend** | Vue.js 3 (Composition API), Tailwind CSS, Inertia.js |
+| **Backend** | Laravel 11, PHP 8.x |
+| **Baza Danych** | MySQL (uruchamiana w kontenerze Docker) |
+| **Środowisko** | Laravel Sail (Docker) |
+| **Zewnętrzne API** | ARASAAC API, Web Speech API, MediaRecorder API |
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Instalacja i Uruchomienie (Lokalnie)
 
-## Contributing
+Aby uruchomić aplikację w swoim środowisku lokalnym za pomocą Docker / Laravel Sail, wykonaj poniższe kroki:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+**1. Sklonuj repozytorium**
+```bash
+git clone [https://github.com/TwojLogin/PiktoFlow.git](https://github.com/TwojLogin/PiktoFlow.git)
+cd PiktoFlow
+```
+2. Zainstaluj zależności PHP
 
-## Code of Conduct
+Bash
+composer install
+3. Skonfiguruj plik środowiskowy
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Bash
+cp .env.example .env
+4. Uruchom kontenery (Laravel Sail)
 
-## Security Vulnerabilities
+Bash
+./vendor/bin/sail up -d
+5. Wygeneruj klucz aplikacji i zmigruj bazę danych
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Bash
+./vendor/bin/sail artisan key:generate
+./vendor/bin/sail artisan migrate
+./vendor/bin/sail artisan storage:link
+6. Zainstaluj i skompiluj zasoby frontendowe
 
-## License
+Bash
+./vendor/bin/sail npm install
+./vendor/bin/sail npm run dev
+Aplikacja będzie dostępna w przeglądarce pod adresem: http://localhost.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Struktura Aplikacji
+Dashboard / Moje Dzieci: Centralny punkt zarządzania profilami podopiecznych (edycja awatara, przełącznik trybu CVI).
+
+Tablica (Board): Główny ekran komunikacyjny dla dziecka. Obsługuje przeciąganie (Drag&Drop), odtwarzanie własnych nagrań i syntezę mowy.
+
+Plan Dnia (Schedule): Wizualny harmonogram dzienny.
+
+Katalog Słów: Zarządzanie przypisanymi piktogramami, wyszukiwanie w API ARASAAC oraz kreator własnych kart graficznych.
+
+Nota prawna dot. Piktogramów:
+Piktogramy używane domyślnie w aplikacji pochodzą z bazy ARASAAC (https://www.google.com/search?q=http://arasaac.org), stworzonej przez Sergio Palao. Są one rozpowszechniane na licencji Creative Commons BY-NC-SA.
