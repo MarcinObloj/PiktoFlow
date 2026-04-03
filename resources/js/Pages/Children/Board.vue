@@ -59,7 +59,10 @@ const toggleEyetracker = () => {
             const avgX = gazeHistory.reduce((sum, p) => sum + p.x, 0) / gazeHistory.length;
             const avgY = gazeHistory.reduce((sum, p) => sum + p.y, 0) / gazeHistory.length;
 
-            const el = document.elementFromPoint(avgX, avgY);
+            const viewportX = avgX - window.scrollX;
+            const viewportY = avgY - window.scrollY;
+
+            const el = document.elementFromPoint(viewportX, viewportY);
             const target = el ? el.closest('.eyetracker-target') : null;
 
             if (target) {
@@ -263,8 +266,8 @@ const verifyPin = () => {
                  class="rounded-3xl p-4 mb-8 transition-all">
                 <div class="flex items-center gap-4 min-h-[120px]">
                     <div :class="isCvi ? 'bg-black border-yellow-400/50' : 'bg-white border-blue-200'"
-                         class="flex-1 flex flex-wrap gap-2 p-4 rounded-2xl border-2 border-dashed min-h-[120px] items-center text-gray-400">
-                        <span v-if="sentence.length === 0" class="text-lg font-medium ml-2">Ułóż zdanie klikając w obrazki...</span>
+                         class="flex-1 flex flex-wrap justify-center gap-2 p-4 rounded-2xl border-2 border-dashed min-h-[120px] items-center text-gray-400">
+                        <span v-if="sentence.length === 0" class="text-lg font-medium text-center">Ułóż zdanie klikając w obrazki...</span>
 
                         <div v-for="(p, index) in sentence" :key="index" @click="sentence.splice(index, 1)"
                              :class="isCvi ? 'border-yellow-400 bg-black' : 'border-gray-200 bg-white'"
@@ -277,19 +280,21 @@ const verifyPin = () => {
                     <div class="flex flex-col gap-3">
                         <button @click="speakSentence"
                                 :class="isCvi ? 'bg-yellow-400 text-black hover:bg-yellow-500' : 'bg-blue-500 text-white hover:bg-blue-600'"
-                                class="eyetracker-target p-4 rounded-2xl shadow-md h-[56px] w-[56px] flex items-center justify-center transition-all active:scale-90 text-2xl">
+                                class="eyetracker-target p-4 rounded-2xl shadow-md h-[56px] w-[56px] flex items-center justify-center transition-all active:scale-90 text-2xl"
+                                data-id="speak-btn">
                             🔊
                         </button>
                         <button @click="clearSentence"
                                 :class="isCvi ? 'bg-gray-800 text-white hover:bg-gray-700' : 'bg-red-500 text-white hover:bg-red-600'"
-                                class="eyetracker-target p-4 rounded-2xl shadow-md h-[56px] w-[56px] flex items-center justify-center transition-all active:scale-90 text-2xl">
+                                class="eyetracker-target p-4 rounded-2xl shadow-md h-[56px] w-[56px] flex items-center justify-center transition-all active:scale-90 text-2xl"
+                                data-id="clear-btn">
                             🗑️
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div v-for="category in localCategories" :key="category.id" class="mb-12">
+            <div v-for="category in localCategories" :key="category.id" class="mb-12 text-center sm:text-left">
                 <h3 :class="isCvi ? 'text-yellow-400 font-black' : 'font-bold text-gray-700'"
                     class="text-2xl mb-6 uppercase tracking-wider px-2"
                     :style="!isCvi ? { color: category.color } : {}">
@@ -300,7 +305,7 @@ const verifyPin = () => {
                     v-model="category.pictograms"
                     @end="handleDragEnd(category.id)"
                     item-key="id"
-                    class="flex flex-wrap gap-4 sm:gap-6"
+                    class="flex flex-wrap justify-center sm:justify-start gap-4 sm:gap-6"
                     ghost-class="opacity-30"
                     :animation="250"
                     :delay="200"
@@ -336,3 +341,12 @@ const verifyPin = () => {
         </div>
     </div>
 </template>
+
+<style>
+#webgazerGazeDot,
+#webgazerVideoContainer,
+#webgazerFaceOverlay,
+#webgazerFaceFeedbackBox {
+    pointer-events: none !important;
+}
+</style>
