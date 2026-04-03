@@ -82,5 +82,8 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('dashboard');
     })->name('categories.destroy');
 });
+Route::get('/children/{child}/mediapipe/face_mesh/{file}', function ($child, $file) {
+    return redirect()->away('https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/' . $file);
+});
 
 require __DIR__.'/auth.php';
