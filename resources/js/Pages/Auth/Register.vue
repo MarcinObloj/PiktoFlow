@@ -20,10 +20,12 @@ const submit = () => {
 
     <div class="min-h-screen flex w-full font-sans bg-gray-100">
         <div class="hidden md:flex md:w-1/2 bg-blue-600 justify-center items-center p-8 text-white shadow-inner">
-            <div class="max-w-md text-center">
-                <div class="text-8xl mb-8 drop-shadow-lg">🧩</div>
-                <h1 class="text-5xl font-black mb-4 tracking-tight">PiktoFlow</h1>
-                <p class="text-xl font-light opacity-90 leading-relaxed">
+            <div class="max-w-md text-center flex flex-col items-center">
+                <Link :href="route('home')" class="group inline-block transition-transform hover:scale-105 active:scale-95 focus:outline-none">
+                    <div class="text-8xl mb-8 drop-shadow-lg group-hover:rotate-12 transition-transform duration-300">🧩</div>
+                    <h1 class="text-5xl font-black mb-4 tracking-tight">PiktoFlow</h1>
+                </Link>
+                <p class="text-xl font-light opacity-90 leading-relaxed mt-2">
                     Załóż darmowe konto opiekuna i stwórz pierwszą tablicę dla swojego dziecka.
                 </p>
             </div>
