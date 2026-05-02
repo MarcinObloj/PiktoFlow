@@ -40,4 +40,9 @@ class Child extends Model
     {
         return $this->belongsToMany(Pictogram::class, 'child_pictogram')->withPivot('position');
     }
+
+    public function sentenceLogs()
+    {
+        return $this->hasMany(SentenceLog::class);
+    }
 }

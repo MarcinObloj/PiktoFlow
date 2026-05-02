@@ -198,6 +198,21 @@ class ChildController extends Controller
 
         return response()->json(['status' => 'success']);
     }
+
+    public function logSentence(Request $request, Child $child)
+    {
+        $request->validate([
+            'pictogram_ids' => 'required|array',
+        ]);
+
+        $child->sentenceLogs()->create([
+            'pictogram_ids' => $request->pictogram_ids,
+            'length' => count($request->pictogram_ids),
+        ]);
+
+        return response()->json(['status' => 'success']);
+    }
+
     public function predict(Request $request, Child $child)
     {
         if ($child->user_id !== auth()->id()) {
@@ -279,10 +294,20 @@ class ChildController extends Controller
                 ->with('pictogram')
                 ->get();
 
+            // Pobieranie MLU pogrupowane po dniach z ostatnich 14 dni
+            $mluData = \App\Models\SentenceLog::where('child_id', $child->id)
+                ->where('created_at', '>=', now()->subDays(14))
+                ->select(\Illuminate\Support\Facades\DB::raw('DATE(created_at) as date'), \Illuminate\Support\Facades\DB::raw('AVG(length) as mlu'))
+                ->groupBy('date')
+                ->orderBy('date', 'asc')
+                ->get();
+
             $statistics[] = [
                 'child' => $child,
                 'chartLabels' => $stats->map(fn($log) => $log->pictogram->name),
                 'chartData' => $stats->map(fn($log) => $log->total),
+                'mluLabels' => $mluData->map(fn($log) => $log->date),
+                'mluData' => $mluData->map(fn($log) => round($log->mlu, 2)),
             ];
         }
 

@@ -12,6 +12,8 @@ const props = defineProps({
 });
 
 const { speak, stop, voices, selectedVoice, rate, pitch, volume } = useTTS();
+const sentence = ref([]);
+const localCategories = ref([...props.categories]);
 const predictedPictograms = ref([]);
 
 const fetchPredictions = async () => {
@@ -74,9 +76,6 @@ const pictogramClasses = computed(() => {
 
     return base + size + theme;
 });
-
-const localCategories = ref([...props.categories]);
-const sentence = ref([]);
 
 const hoveredPictogramId = ref(null);
 const dwellProgress = ref(0);
@@ -208,6 +207,13 @@ const triggerConfetti = () => {
 const speakSentence = () => {
     if (sentence.value.length === 0) return;
     stop();
+    
+    // Logowanie ułożonego zdania w celu śledzenia wskaźnika MLU (Mean Length of Utterance)
+    axios.post(route('children.log-sentence', props.child.id), {
+        pictogram_ids: sentence.value.map(p => p.id)
+    }).catch(error => {
+        console.error("Błąd podczas logowania zdania", error);
+    });
 
     const playNext = (index) => {
         if (index >= sentence.value.length) {
