@@ -1,6 +1,6 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
-import { ref, nextTick, computed, onMounted } from 'vue';
+import { ref, nextTick, computed, onMounted, watch } from 'vue';
 import draggable from 'vuedraggable';
 import axios from 'axios';
 import confetti from 'canvas-confetti';
@@ -12,6 +12,23 @@ const props = defineProps({
 });
 
 const { speak, stop, voices, selectedVoice, rate, pitch, volume } = useTTS();
+const predictedPictograms = ref([]);
+
+const fetchPredictions = async () => {
+    const lastId = sentence.value.length > 0 ? sentence.value[sentence.value.length - 1].id : null;
+    try {
+        const response = await axios.get(route('children.predict', props.child.id), {
+            params: { last_pictogram_id: lastId }
+        });
+        predictedPictograms.value = response.data;
+    } catch (error) {
+        console.error("Błąd podczas pobierania predykcji", error);
+    }
+};
+
+watch(sentence, () => {
+    fetchPredictions();
+}, { deep: true });
 
 onMounted(() => {
     // Initialize TTS settings from child props
@@ -29,6 +46,8 @@ onMounted(() => {
             }
         }, 100);
     }
+    
+    fetchPredictions(); // Initial fetch
 });
 
 const isCvi = computed(() => props.child.is_cvi_mode);
@@ -276,7 +295,7 @@ const verifyPin = () => {
 
         <div class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 pt-24">
             <div :class="isCvi ? 'bg-black border-4 border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.3)]' : 'bg-blue-50 border-4 border-blue-200 shadow-sm'"
-                 class="rounded-3xl p-4 mb-8 transition-all">
+                 class="rounded-3xl p-4 mb-8 transition-all flex flex-col gap-4">
                 <div class="flex items-center gap-4 min-h-[120px]">
                     <div :class="isCvi ? 'bg-black border-yellow-400/50' : 'bg-white border-blue-200'"
                          class="flex-1 flex flex-wrap justify-center gap-2 p-4 rounded-2xl border-2 border-dashed min-h-[120px] items-center text-gray-400">
@@ -304,6 +323,20 @@ const verifyPin = () => {
                             🗑️
                         </button>
                     </div>
+                </div>
+                
+                <!-- Predykcje / Sugestie -->
+                <div v-if="predictedPictograms.length > 0" class="flex flex-wrap items-center gap-3 justify-center sm:justify-start px-2 py-2 border-t border-gray-200/50 mt-2">
+                    <span :class="isCvi ? 'text-yellow-400' : 'text-gray-500'" class="text-sm font-bold flex items-center gap-1">
+                        ✨ Podpowiedzi:
+                    </span>
+                    <button v-for="p in predictedPictograms" :key="'pred-'+p.id" @click="addToSentence(p)"
+                            :class="isCvi ? 'bg-black border-yellow-400 text-white hover:bg-yellow-900/30' : 'bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-900'"
+                            class="eyetracker-target flex items-center gap-2 border-2 rounded-xl px-4 py-2 transition-all active:scale-95 shadow-sm"
+                            :data-id="p.id">
+                        <img v-if="p.image_path" :src="p.image_path" class="w-6 h-6 object-contain pointer-events-none" />
+                        <span class="font-bold text-sm pointer-events-none">{{ p.name }}</span>
+                    </button>
                 </div>
             </div>
 

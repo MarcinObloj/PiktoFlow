@@ -198,6 +198,73 @@ class ChildController extends Controller
 
         return response()->json(['status' => 'success']);
     }
+    public function predict(Request $request, Child $child)
+    {
+        if ($child->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $lastId = $request->query('last_pictogram_id');
+
+        if (!$lastId) {
+            // Jeśli puste zdanie, zasugeruj najpopularniejsze ze wszystkich piktogramów dziecka
+            $popularIds = ClickLog::where('child_id', $child->id)
+                ->select('pictogram_id', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+                ->groupBy('pictogram_id')
+                ->orderByDesc('total')
+                ->limit(4)
+                ->pluck('pictogram_id');
+
+            $pictograms = Pictogram::whereIn('id', $popularIds)->get();
+            return response()->json($pictograms);
+        }
+
+        // Łańcuch Markowa - predykcja następnego symbolu na podstawie historii kliknięć (czas okna: 2 minuty)
+        $logs = ClickLog::where('child_id', $child->id)
+            ->orderBy('created_at', 'desc')
+            ->limit(1000)
+            ->get();
+
+        $transitions = [];
+
+        // Pętla od tyłu (od najstarszych w ramach pobranego 1000)
+        for ($i = count($logs) - 1; $i > 0; $i--) {
+            $current = $logs[$i];
+            $next = $logs[$i - 1]; // Kolejne kliknięcie w chronologii czasowej
+
+            // Jeśli kolejne kliknięcie nastąpiło w ciągu 120 sekund
+            if ($current->created_at->diffInSeconds($next->created_at) < 120) {
+                if ($current->pictogram_id == $lastId) {
+                    $nextId = $next->pictogram_id;
+                    $transitions[$nextId] = ($transitions[$nextId] ?? 0) + 1;
+                }
+            }
+        }
+
+        // Sortowanie malejąco według częstotliwości wystąpień po danym symbolu
+        arsort($transitions);
+        $predictedIds = array_slice(array_keys($transitions), 0, 4);
+
+        if (empty($predictedIds)) {
+            // Fallback: jeśli nie znaleziono wzorców dla tego słowa, podaj globalnie najczęstsze
+            $popularIds = ClickLog::where('child_id', $child->id)
+                ->select('pictogram_id', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+                ->groupBy('pictogram_id')
+                ->orderByDesc('total')
+                ->limit(4)
+                ->pluck('pictogram_id');
+            $predictedIds = $popularIds->toArray();
+        }
+
+        // Pobranie modeli i zachowanie kolejności z predykcji
+        $pictograms = Pictogram::whereIn('id', $predictedIds)->get();
+        $sortedPictograms = $pictograms->sortBy(function($model) use ($predictedIds) {
+            return array_search($model->id, $predictedIds);
+        })->values();
+
+        return response()->json($sortedPictograms);
+    }
+
     public function statistics()
     {
         $children = auth()->user()->children;

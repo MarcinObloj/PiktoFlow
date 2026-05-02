@@ -54,6 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/children/{child}/reorder', [ChildController::class, 'reorder'])->name('children.reorder');
     Route::get('/statistics', [\App\Http\Controllers\ChildController::class, 'statistics'])->name('statistics.index');
     Route::post('/children/{child}/log-click', [ChildController::class, 'logClick'])->name('children.log-click');
+    Route::get('/children/{child}/predict', [ChildController::class, 'predict'])->name('children.predict');
     Route::get('/categories/create', function () {
         return Inertia::render('Categories/Create');
     })->name('categories.create');
