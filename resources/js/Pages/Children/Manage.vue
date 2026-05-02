@@ -1,4 +1,5 @@
 <script setup>
+import { ref, computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
@@ -10,6 +11,30 @@ const props = defineProps({
 
 const form = useForm({
     pictogram_ids: props.activePictogramIds || [],
+});
+
+const searchQuery = ref('');
+
+const filteredCategories = computed(() => {
+    if (!searchQuery.value.trim()) {
+        return props.categories;
+    }
+
+    const query = searchQuery.value.toLowerCase().trim();
+
+    return props.categories.map(category => {
+        // Zwróć tylko pasujące piktogramy z kategorii
+        const filteredPictograms = category.pictograms.filter(p => 
+            p.name.toLowerCase().includes(query)
+        );
+
+        // Jeśli kategoria pasuje z nazwy, to pokażemy wszystkie jej piktogramy? 
+        // Lepiej zostawić tylko te pasujące do wyszukiwania z nazwy piktogramu.
+        return {
+            ...category,
+            pictograms: filteredPictograms
+        };
+    }).filter(category => category.pictograms.length > 0 || category.name.toLowerCase().includes(query));
 });
 
 const togglePictogram = (id) => {
@@ -49,14 +74,32 @@ const submit = () => {
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-8 rounded shadow-sm">
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded shadow-sm">
                     <p class="text-blue-700">
                         <strong>Instrukcja:</strong> Kliknij piktogram, aby dodać go do tablicy dziecka (podświetli się na zielono). Ponowne kliknięcie usunie go z tablicy. Pamiętaj, aby po wszystkim kliknąć "Zapisz zmiany" w prawym górnym rogu.
                     </p>
                 </div>
 
+                <div class="mb-8">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <span class="text-gray-400 text-xl">🔍</span>
+                        </div>
+                        <input 
+                            v-model="searchQuery" 
+                            type="text" 
+                            class="block w-full pl-12 pr-4 py-4 rounded-2xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-lg" 
+                            placeholder="Wyszukaj słowo (np. jabłko, mama, pić)..." 
+                        />
+                    </div>
+                </div>
+
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <div v-for="category in categories" :key="category.id" class="mb-8 border-b pb-4">
+                    <div v-if="filteredCategories.length === 0" class="text-center py-12 text-gray-500 text-lg">
+                        Nie znaleziono żadnych piktogramów pasujących do wyszukiwania.
+                    </div>
+                    
+                    <div v-for="category in filteredCategories" :key="category.id" class="mb-8 border-b pb-4">
 
                         <h3 class="text-2xl font-bold mb-4 uppercase tracking-wider" :style="{ color: category.color }">
                             {{ category.name }}
