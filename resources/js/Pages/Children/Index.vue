@@ -1,7 +1,8 @@
 <script setup>
+import { ref, onMounted } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { useTTS } from '@/Composables/useTTS';
 
 defineProps({
     children: Array,
@@ -12,10 +13,20 @@ const showDeleteModal = ref(false);
 const selectedChild = ref(null);
 const avatarPreview = ref(null);
 
+const { voices, loadVoices } = useTTS();
+
+onMounted(() => {
+    loadVoices();
+});
+
 const form = useForm({
     name: '',
     avatar: null,
     is_cvi_mode: false,
+    tts_voice: '',
+    tts_rate: 0.9,
+    tts_pitch: 1.0,
+    tts_volume: 1.0,
 });
 
 const openSettingsModal = (child) => {
@@ -24,6 +35,13 @@ const openSettingsModal = (child) => {
     form.is_cvi_mode = child.is_cvi_mode;
     form.avatar = null;
     avatarPreview.value = null;
+
+    // Initialize TTS settings from child's data
+    form.tts_voice = child.tts_voice || '';
+    form.tts_rate = child.tts_rate || 0.9;
+    form.tts_pitch = child.tts_pitch || 1.0;
+    form.tts_volume = child.tts_volume || 1.0;
+
     showSettingsModal.value = true;
 };
 
@@ -159,6 +177,47 @@ const submitUpdate = () => {
                                 <span class="text-sm text-yellow-700">Czarne tło i jaskrawe ramki na tablicy</span>
                             </div>
                         </label>
+                    </div>
+
+                    <!-- Sekcja TTS -->
+                    <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                        <label class="block font-bold text-blue-900 text-lg mb-4">🗣️ Głos (TTS)</label>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-bold text-blue-800 mb-1">Wybierz głos</label>
+                                <select v-model="form.tts_voice" class="block w-full rounded-xl border-blue-300 shadow-sm focus:border-blue-500 py-2 px-3 text-sm">
+                                    <option value="">Domyślny systemowy</option>
+                                    <option v-for="voice in voices" :key="voice.voiceURI" :value="voice.name">
+                                        {{ voice.name }} ({{ voice.lang }})
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-blue-800 mb-1 flex justify-between">
+                                        <span>Prędkość</span>
+                                        <span>{{ form.tts_rate }}</span>
+                                    </label>
+                                    <input type="range" v-model="form.tts_rate" min="0.1" max="2" step="0.1" class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-blue-800 mb-1 flex justify-between">
+                                        <span>Ton</span>
+                                        <span>{{ form.tts_pitch }}</span>
+                                    </label>
+                                    <input type="range" v-model="form.tts_pitch" min="0" max="2" step="0.1" class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-blue-800 mb-1 flex justify-between">
+                                        <span>Głośność</span>
+                                        <span>{{ form.tts_volume }}</span>
+                                    </label>
+                                    <input type="range" v-model="form.tts_volume" min="0" max="1" step="0.1" class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer" />
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="flex justify-between items-center mt-4 pt-6 border-t border-gray-100">

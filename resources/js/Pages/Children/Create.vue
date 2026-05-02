@@ -1,11 +1,23 @@
 <script setup>
+import { ref, onMounted } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
+import { useTTS } from '@/Composables/useTTS';
+
+const { voices, loadVoices } = useTTS();
+
+onMounted(() => {
+    loadVoices();
+});
 
 const form = useForm({
     name: '',
     age: '',
     hobbies: '',
+    tts_voice: '',
+    tts_rate: 0.9,
+    tts_pitch: 1.0,
+    tts_volume: 1.0,
 });
 
 const submit = () => {
@@ -36,6 +48,38 @@ const submit = () => {
                             <label class="block font-bold text-gray-700 text-lg mb-2">Wiek (opcjonalnie)</label>
                             <input type="number" v-model="form.age" class="block w-full rounded-2xl border-gray-300 shadow-sm focus:border-blue-500 py-3 px-4" min="1" max="99" />
                             <div v-if="form.errors.age" class="text-red-500 text-sm mt-2">{{ form.errors.age }}</div>
+                        </div>
+
+                        <!-- Sekcja TTS -->
+                        <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                            <label class="block font-bold text-blue-900 text-lg mb-4">🗣️ Ustawienia głosu (TTS)</label>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-bold text-blue-800 mb-1">Wybierz głos</label>
+                                    <select v-model="form.tts_voice" class="block w-full rounded-xl border-blue-300 shadow-sm focus:border-blue-500 py-2 px-3 text-sm">
+                                        <option value="">Domyślny systemowy</option>
+                                        <option v-for="voice in voices" :key="voice.voiceURI" :value="voice.name">
+                                            {{ voice.name }} ({{ voice.lang }})
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-bold text-blue-800 mb-1">Prędkość: {{ form.tts_rate }}</label>
+                                        <input type="range" v-model="form.tts_rate" min="0.1" max="2" step="0.1" class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-blue-800 mb-1">Ton: {{ form.tts_pitch }}</label>
+                                        <input type="range" v-model="form.tts_pitch" min="0" max="2" step="0.1" class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-blue-800 mb-1">Głośność: {{ form.tts_volume }}</label>
+                                        <input type="range" v-model="form.tts_volume" min="0" max="1" step="0.1" class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer" />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="bg-purple-50 p-6 rounded-2xl border border-purple-100">

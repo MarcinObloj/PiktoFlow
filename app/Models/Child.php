@@ -16,12 +16,19 @@ class Child extends Model
         'hobbies',
         'avatar_path',
         'is_cvi_mode',
-        'daily_plan'
+        'daily_plan',
+        'tts_voice',
+        'tts_rate',
+        'tts_pitch',
+        'tts_volume',
     ];
 
     protected $casts = [
         'is_cvi_mode' => 'boolean',
         'daily_plan' => 'array',
+        'tts_rate' => 'float',
+        'tts_pitch' => 'float',
+        'tts_volume' => 'float',
     ];
 
     public function user()

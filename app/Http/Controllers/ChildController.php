@@ -33,12 +33,20 @@ class ChildController extends Controller
             'name' => 'required|string|max:255',
             'age' => 'nullable|integer|min:1|max:99',
             'hobbies' => 'nullable|string|max:255',
+            'tts_voice' => 'nullable|string|max:255',
+            'tts_rate' => 'nullable|numeric|min:0.1|max:2',
+            'tts_pitch' => 'nullable|numeric|min:0|max:2',
+            'tts_volume' => 'nullable|numeric|min:0|max:1',
         ]);
 
         $child = auth()->user()->children()->create([
             'name' => $request->name,
             'age' => $request->age,
             'hobbies' => $request->hobbies,
+            'tts_voice' => $request->tts_voice,
+            'tts_rate' => $request->tts_rate ?? 0.9,
+            'tts_pitch' => $request->tts_pitch ?? 1.0,
+            'tts_volume' => $request->tts_volume ?? 1.0,
         ]);
 
         if ($request->hobbies) {
@@ -225,11 +233,19 @@ class ChildController extends Controller
             'name' => 'required|string|max:255',
             'avatar' => 'nullable|image|max:2048',
             'is_cvi_mode' => 'required|boolean',
+            'tts_voice' => 'nullable|string|max:255',
+            'tts_rate' => 'nullable|numeric|min:0.1|max:2',
+            'tts_pitch' => 'nullable|numeric|min:0|max:2',
+            'tts_volume' => 'nullable|numeric|min:0|max:1',
         ]);
 
         $data = [
             'name' => $request->name,
             'is_cvi_mode' => $request->is_cvi_mode,
+            'tts_voice' => $request->tts_voice,
+            'tts_rate' => $request->tts_rate,
+            'tts_pitch' => $request->tts_pitch,
+            'tts_volume' => $request->tts_volume,
         ];
 
         if ($request->hasFile('avatar')) {

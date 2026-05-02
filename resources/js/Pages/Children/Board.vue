@@ -1,13 +1,34 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
-import { ref, nextTick, computed } from 'vue';
+import { ref, nextTick, computed, onMounted } from 'vue';
 import draggable from 'vuedraggable';
 import axios from 'axios';
 import confetti from 'canvas-confetti';
+import { useTTS } from '@/Composables/useTTS';
 
 const props = defineProps({
     child: Object,
     categories: Array,
+});
+
+const { speak, stop, voices, selectedVoice, rate, pitch, volume } = useTTS();
+
+onMounted(() => {
+    // Initialize TTS settings from child props
+    rate.value = props.child.tts_rate || 0.9;
+    pitch.value = props.child.tts_pitch || 1.0;
+    volume.value = props.child.tts_volume || 1.0;
+    
+    // Set voice if stored
+    if (props.child.tts_voice) {
+        const timer = setInterval(() => {
+            if (voices.value.length > 0) {
+                const voice = voices.value.find(v => v.name === props.child.tts_voice);
+                if (voice) selectedVoice.value = voice;
+                clearInterval(timer);
+            }
+        }, 100);
+    }
 });
 
 const isCvi = computed(() => props.child.is_cvi_mode);
@@ -139,12 +160,8 @@ const playPictogram = (pictogram) => {
     if (pictogram.audio_path) {
         const audio = new Audio(pictogram.audio_path);
         audio.play();
-    } else if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(pictogram.name);
-        utterance.lang = 'pl-PL';
-        utterance.rate = 0.9;
-        window.speechSynthesis.speak(utterance);
+    } else {
+        speak(pictogram.name);
     }
 };
 
@@ -171,7 +188,7 @@ const triggerConfetti = () => {
 
 const speakSentence = () => {
     if (sentence.value.length === 0) return;
-    window.speechSynthesis.cancel();
+    stop();
 
     const playNext = (index) => {
         if (index >= sentence.value.length) {
@@ -184,14 +201,10 @@ const speakSentence = () => {
             const audio = new Audio(p.audio_path);
             audio.onended = () => playNext(index + 1);
             audio.play();
-        } else if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(p.name);
-            utterance.lang = 'pl-PL';
-            utterance.rate = 0.9;
-            utterance.onend = () => playNext(index + 1);
-            window.speechSynthesis.speak(utterance);
         } else {
-            playNext(index + 1);
+            speak(p.name, {
+                onEnd: () => playNext(index + 1)
+            });
         }
     };
     playNext(0);
