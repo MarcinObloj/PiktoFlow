@@ -13,7 +13,7 @@ const showDeleteModal = ref(false);
 const selectedChild = ref(null);
 const avatarPreview = ref(null);
 
-const { voices, loadVoices } = useTTS();
+const { voices, selectedVoice, loadVoices, speak } = useTTS();
 
 onMounted(() => {
     loadVoices();
@@ -28,6 +28,20 @@ const form = useForm({
     tts_pitch: 1.0,
     tts_volume: 1.0,
 });
+
+const testVoice = () => {
+    let voiceToUse = null;
+    if (form.tts_voice) {
+        voiceToUse = voices.value.find(v => v.name === form.tts_voice);
+    }
+    
+    speak('Cześć! Tak brzmi mój nowy głos.', {
+        voice: voiceToUse || selectedVoice.value,
+        rate: parseFloat(form.tts_rate),
+        pitch: parseFloat(form.tts_pitch),
+        volume: parseFloat(form.tts_volume)
+    });
+};
 
 const openSettingsModal = (child) => {
     selectedChild.value = child;
@@ -146,11 +160,11 @@ const submitUpdate = () => {
             </div>
         </div>
 
-        <div v-if="showSettingsModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4" @click.self="closeSettingsModal">
-            <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
-                <h3 class="text-2xl font-bold text-gray-900 mb-6">⚙️ Ustawienia: {{ selectedChild?.name }}</h3>
+        <div v-if="showSettingsModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4 overflow-y-auto" @click.self="closeSettingsModal">
+            <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl my-8 max-h-[90vh] flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6 shrink-0">⚙️ Ustawienia: {{ selectedChild?.name }}</h3>
 
-                <form @submit.prevent="submitUpdate" class="flex flex-col gap-6">
+                <form @submit.prevent="submitUpdate" class="flex flex-col gap-6 overflow-y-auto pr-2">
 
                     <div>
                         <label class="block font-bold text-gray-700 mb-2">Imię dziecka</label>
@@ -217,10 +231,14 @@ const submitUpdate = () => {
                                     <input type="range" v-model="form.tts_volume" min="0" max="1" step="0.1" class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer" />
                                 </div>
                             </div>
+                            
+                            <button type="button" @click="testVoice" class="w-full mt-4 bg-blue-200 hover:bg-blue-300 text-blue-800 font-bold py-2 px-4 rounded-xl transition flex items-center justify-center gap-2">
+                                <span>🔊</span> Testuj głos
+                            </button>
                         </div>
                     </div>
 
-                    <div class="flex justify-between items-center mt-4 pt-6 border-t border-gray-100">
+                    <div class="flex flex-wrap justify-between items-center mt-4 pt-6 border-t border-gray-100 shrink-0 gap-4">
                         <button type="button" @click="openDeleteModal" class="px-4 py-2 bg-red-100 font-bold rounded-md text-red-700 hover:bg-red-200">
                             🗑️ Usuń profil
                         </button>

@@ -4,7 +4,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
 import { useTTS } from '@/Composables/useTTS';
 
-const { voices, loadVoices } = useTTS();
+const { voices, selectedVoice, loadVoices, speak } = useTTS();
 
 onMounted(() => {
     loadVoices();
@@ -19,6 +19,20 @@ const form = useForm({
     tts_pitch: 1.0,
     tts_volume: 1.0,
 });
+
+const testVoice = () => {
+    let voiceToUse = null;
+    if (form.tts_voice) {
+        voiceToUse = voices.value.find(v => v.name === form.tts_voice);
+    }
+    
+    speak('Cześć! Tak brzmi mój nowy głos.', {
+        voice: voiceToUse || selectedVoice.value,
+        rate: parseFloat(form.tts_rate),
+        pitch: parseFloat(form.tts_pitch),
+        volume: parseFloat(form.tts_volume)
+    });
+};
 
 const submit = () => {
     form.post(route('children.store'));
@@ -80,6 +94,10 @@ const submit = () => {
                                     </div>
                                 </div>
                             </div>
+                            
+                            <button type="button" @click="testVoice" class="w-full mt-4 bg-blue-200 hover:bg-blue-300 text-blue-800 font-bold py-2 px-4 rounded-xl transition flex items-center justify-center gap-2">
+                                <span>🔊</span> Testuj głos
+                            </button>
                         </div>
 
                         <div class="bg-purple-50 p-6 rounded-2xl border border-purple-100">
