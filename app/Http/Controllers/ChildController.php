@@ -35,7 +35,6 @@ class ChildController extends Controller
             'hobbies' => 'nullable|string|max:255',
         ]);
 
-        // 1. Tworzymy dziecko
         $child = auth()->user()->children()->create([
             'name' => $request->name,
             'age' => $request->age,
@@ -46,47 +45,68 @@ class ChildController extends Controller
             'tts_volume' => $request->tts_volume ?? 1.0,
         ]);
 
-        // 2. Automatyczny Onboarding - Słowa Podstawowe
-        $coreWords = ['chcę', 'jeść', 'pić', 'koniec', 'tak', 'nie', 'pomocy'];
-        $starterIds = [];
 
-        // Pobieramy lub tworzymy kategorię
-        $coreCategory = Category::firstOrCreate(
-            ['name' => 'Podstawowe'],
-            ['color' => '#10b981']
-        );
+        $categoriesDefinition = [
+            'Podstawowe' => [
+                'color' => '#10b981',
+                'words' => ['chcę', 'tak', 'nie', 'pomocy', 'stop', 'koniec', 'jeszcze', 'to', 'teraz', 'później', 'gotowe']
+            ],
+            'Osoby' => [
+                'color' => '#3b82f6',
+                'words' => ['ja', 'ty', 'mama', 'tata', 'dziecko', 'pani', 'pan', 'babcia', 'dziadek', 'kolega', 'lekarz']
+            ],
+            'Czynności' => [
+                'color' => '#f59e0b',
+                'words' => ['iść', 'spać', 'jeść', 'pić', 'bawić się', 'oglądać', 'słuchać', 'czytać', 'myć', 'ubierać', 'siadać', 'stać', 'rysować', 'skakać']
+            ],
+            'Emocje' => [
+                'color' => '#ef4444',
+                'words' => ['lubię', 'nie lubię', 'dobrze', 'źle', 'wesoły', 'smutny', 'zły', 'zmęczony', 'boli', 'kocham', 'strach']
+            ],
+            'Miejsca i Rzeczy' => [
+                'color' => '#8b5cf6',
+                'words' => ['dom', 'szkoła', 'plac zabaw', 'sklep', 'łóżko', 'zabawka', 'książka', 'telefon', 'toaleta', 'jedzenie', 'picie', 'auto']
+            ]
+        ];
 
-        foreach ($coreWords as $word) {
-            // Szukamy czy już mamy ten piktogram w bazie
-            $existing = Pictogram::where('name', ucfirst($word))->first();
+        $allStarterIds = [];
 
-            if ($existing) {
-                $starterIds[] = $existing->id;
-            } else {
-                // Jeśli nie ma w bazie, pobieramy z API ARASAAC
-                $resp = Http::get("https://api.arasaac.org/api/pictograms/pl/search/" . urlencode($word));
-                if ($resp->successful() && count($resp->json()) > 0) {
-                    $data = $resp->json()[0];
-                    $id = $data['_id'];
-                    $newPic = Pictogram::create([
-                        'name' => ucfirst($word),
-                        'category_id' => $coreCategory->id,
-                        'image_path' => "https://static.arasaac.org/pictograms/{$id}/{$id}_300.png",
-                        'is_custom' => false
-                    ]);
-                    $starterIds[] = $newPic->id;
+        foreach ($categoriesDefinition as $catName => $data) {
+            $category = Category::firstOrCreate(
+                ['name' => $catName],
+                ['color' => $data['color']]
+            );
+
+            foreach ($data['words'] as $word) {
+                $existing = Pictogram::where('name', ucfirst($word))->first();
+
+                if ($existing) {
+                    $allStarterIds[] = $existing->id;
+                } else {
+                    $resp = Http::get("https://api.arasaac.org/api/pictograms/pl/search/" . urlencode($word));
+                    if ($resp->successful() && count($resp->json()) > 0) {
+                        $picData = $resp->json()[0];
+                        $arasaacId = $picData['_id'];
+
+                        $newPic = Pictogram::create([
+                            'name' => ucfirst($word),
+                            'category_id' => $category->id,
+                            'image_path' => "https://static.arasaac.org/pictograms/{$arasaacId}/{$arasaacId}_300.png",
+                            'is_custom' => false
+                        ]);
+                        $allStarterIds[] = $newPic->id;
+                    }
                 }
             }
         }
 
-        if (!empty($starterIds)) {
-            $child->pictograms()->syncWithoutDetaching($starterIds);
+        if (!empty($allStarterIds)) {
+            $child->pictograms()->syncWithoutDetaching($allStarterIds);
         }
 
-        // 3. Twoja istniejąca logika hobby (pozostaje bez zmian)
         if ($request->hobbies) {
             $hobbiesArray = array_map('trim', explode(',', $request->hobbies));
-            $hobbyCategory = Category::firstOrCreate(['name' => 'Zainteresowania'], ['color' => '#8b5cf6']);
+            $hobbyCategory = Category::firstOrCreate(['name' => 'Zainteresowania'], ['color' => '#ec4899']);
             $attachedHobbyIds = [];
 
             foreach ($hobbiesArray as $hobby) {
@@ -107,7 +127,6 @@ class ChildController extends Controller
 
         return redirect()->route('children.index');
     }
-
     public function destroy(Child $child)
     {
         if ($child->user_id !== auth()->id()) {
