@@ -29,6 +29,7 @@ class ChildController extends Controller
 
     public function store(Request $request)
     {
+        // 1. Walidacja danych wejściowych
         $request->validate([
             'name' => 'required|string|max:255',
             'age' => 'nullable|integer|min:1|max:99',
@@ -39,6 +40,7 @@ class ChildController extends Controller
             'tts_volume' => 'nullable|numeric|min:0|max:1',
         ]);
 
+        // 2. Tworzenie profilu dziecka przypisanego do zalogowanego użytkownika
         $child = auth()->user()->children()->create([
             'name' => $request->name,
             'age' => $request->age,
@@ -49,19 +51,33 @@ class ChildController extends Controller
             'tts_volume' => $request->tts_volume ?? 1.0,
         ]);
 
+        // --- 3. AUTOMATYCZNE DODAWANIE SŁOWNICTWA PODSTAWOWEGO (ONBOARDING) ---
+        // Pobieramy ID piktogramów z kluczowych kategorii, aby opiekun nie zaczynał od zera
+        $starterPictogramIds = \App\Models\Pictogram::whereHas('category', function($query) {
+            $query->whereIn('name', ['Podstawowe', 'Emocje', 'Czynności']);
+        })->pluck('id');
+
+        if ($starterPictogramIds->isNotEmpty()) {
+            // syncWithoutDetaching dodaje piktogramy do tabeli pivot (child_pictogram)
+            $child->pictograms()->syncWithoutDetaching($starterPictogramIds);
+        }
+
+        // --- 4. LOGIKA POBIERANIA ZAINTERESOWAŃ (Hobby) Z ARASAAC ---
         if ($request->hobbies) {
             $hobbiesArray = array_map('trim', explode(',', $request->hobbies));
 
+            // Upewniamy się, że istnieje kategoria dla zainteresowań
             $category = Category::firstOrCreate(
                 ['name' => 'Zainteresowania'],
                 ['color' => '#8b5cf6']
             );
 
-            $attachedIds = [];
+            $attachedHobbyIds = [];
 
             foreach ($hobbiesArray as $hobby) {
                 if (empty($hobby)) continue;
 
+                // Szukamy piktogramu w ARASAAC w języku polskim
                 $response = Http::get("https://api.arasaac.org/api/pictograms/pl/search/" . urlencode($hobby));
 
                 if ($response->successful() && count($response->json()) > 0) {
@@ -69,20 +85,27 @@ class ChildController extends Controller
                     $arasaacId = $picData['_id'];
                     $imageUrl = "https://static.arasaac.org/pictograms/{$arasaacId}/{$arasaacId}_300.png";
 
+                    // Sprawdzamy czy mamy już ten piktogram w lokalnej bazie, jeśli nie - tworzymy
                     $pictogram = Pictogram::firstOrCreate(
                         ['name' => ucfirst($hobby)],
-                        ['category_id' => $category->id, 'image_path' => $imageUrl, 'is_custom' => false]
+                        [
+                            'category_id' => $category->id,
+                            'image_path' => $imageUrl,
+                            'is_custom' => false
+                        ]
                     );
 
-                    $attachedIds[] = $pictogram->id;
+                    $attachedHobbyIds[] = $pictogram->id;
                 }
             }
 
-            if (!empty($attachedIds)) {
-                $child->pictograms()->syncWithoutDetaching($attachedIds);
+            // Dołączamy znalezione piktogramy hobby do dziecka
+            if (!empty($attachedHobbyIds)) {
+                $child->pictograms()->syncWithoutDetaching($attachedHobbyIds);
             }
         }
 
+        // 5. Powrót do listy dzieci
         return redirect()->route('children.index');
     }
 
