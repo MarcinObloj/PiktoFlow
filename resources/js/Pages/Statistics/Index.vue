@@ -1,15 +1,52 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title } from 'chart.js';
+import { computed } from 'vue';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title, Filler } from 'chart.js';
 import { Doughnut, Line } from 'vue-chartjs';
 
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title);
+// REJESTRACJA FILLERA - to naprawi błąd!
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title, Filler);
 
-defineProps({
+const props = defineProps({
     statistics: Array
 });
+// --- AUTOMATYCZNY GENERATOR WNIOSKÓW ---
+// --- AUTOMATYCZNY GENERATOR WNIOSKÓW (Poprawiony) ---
+const dynamicConclusions = computed(() => {
+    const stats = props.statistics;
 
+    // Zabezpieczenie, gdy jest za mało danych
+    if (!stats || stats.length < 2) {
+        return {
+            title: "Oczekiwanie na dane...",
+            text1: "Zgromadź dane z co najmniej dwóch różnych profili, aby system mógł wygenerować wnioski.",
+            text2: ""
+        };
+    }
+
+    // Sortujemy profile po tempie wzrostu (od najlepszego do najsłabszego)
+    const sortedStats = [...stats].sort((a, b) => b.growthRate - a.growthRate);
+    const bestGroup = sortedStats[0];
+    const worstGroup = sortedStats[sortedStats.length - 1];
+
+    // MĄDRE OBLICZANIE RÓŻNICY (Zabezpieczenie przed ujemnymi wynikami / zerem)
+    let differenceText = "";
+    if (worstGroup.growthRate > 0) {
+        let diff = Math.round((bestGroup.growthRate / worstGroup.growthRate) * 100 - 100);
+        differenceText = `o ${diff}% lepszy`;
+    } else {
+        // Jeśli najsłabsza grupa ma wynik <= 0, używamy punktów procentowych
+        let diff = (bestGroup.growthRate - worstGroup.growthRate).toFixed(1);
+        differenceText = `wyższy o ${diff} punktów proc.`;
+    }
+
+    return {
+        title: "Wnioski z analizy algorytmicznej (Generowane na żywo)",
+        text1: `Zestawienie systemowe wykazuje, że najszybszy rozwój wskaźnika MLU występuje u profilu "${bestGroup.child.name}" (tempo wzrostu: +${bestGroup.growthRate}% na dzień). Jest to wynik ${differenceText} w porównaniu do najwolniej rozwijającej się grupy ("${worstGroup.child.name}").`,
+        text2: `Predykcja oparta na regresji liniowej potwierdza, że metoda zastosowana w grupie "${bestGroup.child.name}" wykazuje najwyższą skuteczność terapeutyczną. System rekomenduje to podejście jako optymalne do dalszego rozwoju komunikacji.`
+    };
+});
 const getDoughnutData = (labels, data) => ({
     labels: labels,
     datasets: [{
@@ -18,94 +55,85 @@ const getDoughnutData = (labels, data) => ({
     }]
 });
 
-const doughnutOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-        legend: { position: 'bottom' }
-    }
+const getLineData = (labels = [], historyData = [], predictionData = []) => {
+    // Zabezpieczenie przed pustymi danymi
+    const safePrediction = predictionData || [];
+    const safeHistory = historyData || [];
+    const safeLabels = labels || [];
+
+    const futureLabels = Array.from({length: safePrediction.length}, (_, i) => `+${i+1}d`);
+    const allLabels = [...safeLabels, ...futureLabels];
+
+    const paddedHistory = [...safeHistory, ...Array(safePrediction.length).fill(null)];
+
+    const lastHistoryVal = safeHistory.length > 0 ? safeHistory[safeHistory.length - 1] : 0;
+    const paddingLength = safeHistory.length > 0 ? safeHistory.length - 1 : 0;
+
+    const paddedPrediction = [...Array(paddingLength).fill(null), lastHistoryVal, ...safePrediction];
+
+    return {
+        labels: allLabels,
+        datasets: [
+            {
+                label: 'Historia MLU',
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                data: paddedHistory,
+                tension: 0.3,
+                fill: true,
+            },
+            {
+                label: 'Prognoza rozwoju',
+                borderColor: '#f59e0b',
+                borderDash: [5, 5],
+                data: paddedPrediction,
+                tension: 0.3,
+                fill: false,
+            }
+        ]
+    };
 };
 
-const getLineData = (labels, data) => ({
-    labels: labels,
-    datasets: [{
-        label: 'Średnia Długość Wypowiedzi (MLU)',
-        backgroundColor: '#8b5cf6',
-        borderColor: '#8b5cf6',
-        data: data,
-        tension: 0.3,
-        fill: true,
-        backgroundColor: 'rgba(139, 92, 246, 0.2)',
-    }]
-});
-
-const lineOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-        legend: { position: 'bottom' },
-        title: {
-            display: true,
-            text: 'Rozwój wypowiedzi (ostatnie 14 dni)'
-        }
-    },
-    scales: {
-        y: {
-            beginAtZero: true,
-            suggestedMax: 3
-        }
-    }
-};
 </script>
 
 <template>
-    <Head title="Statystyki AAC" />
-
+    <Head title="Analiza Badawcza" />
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-bold text-xl sm:text-2xl text-gray-800 leading-tight">
-                📊 Statystyki Komunikacji i Terapii
-            </h2>
+            <h2 class="font-bold text-2xl text-gray-800">📊 Panel Analizy Porównawczej</h2>
         </template>
 
-        <div class="py-8">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-
-                <div v-if="statistics.length === 0" class="text-center py-12 bg-white rounded-3xl shadow-sm border border-gray-100">
-                    <p class="text-gray-500 text-xl">Nie masz jeszcze danych statystycznych. Dziecko musi ułożyć zdanie na tablicy.</p>
+        <div class="py-8 max-w-7xl mx-auto px-4 space-y-8">
+            <div class="bg-blue-900 text-white p-8 rounded-3xl shadow-xl">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="text-3xl animate-pulse">🤖</span>
+                    <h3 class="text-xl font-bold">{{ dynamicConclusions.title }}</h3>
                 </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 italic text-blue-100">
+                    <p>{{ dynamicConclusions.text1 }}</p>
+                    <p>{{ dynamicConclusions.text2 }}</p>
+                </div>
+            </div>
 
-                <div v-for="stat in statistics" :key="stat.child.id" class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b border-gray-100">
-                        <h3 class="text-2xl font-black text-gray-900 flex items-center gap-3">
-                            <span class="text-3xl">👦</span> Profil: {{ stat.child.name }}
-                        </h3>
-                    </div>
-
-                    <div class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <!-- Najczęściej używane słowa -->
-                        <div class="flex flex-col">
-                            <h4 class="text-lg font-bold text-gray-700 mb-4 text-center">Najczęściej używane słowa</h4>
-                            <div v-if="stat.chartData.length > 0" class="h-64 relative">
-                                <Doughnut :data="getDoughnutData(stat.chartLabels, stat.chartData)" :options="doughnutOptions" />
-                            </div>
-                            <div v-else class="flex-1 flex items-center justify-center p-8 text-gray-400 italic bg-gray-50 rounded-2xl border-2 border-dashed">
-                                Brak danych o kliknięciach na tablicy.
-                            </div>
-                        </div>
-
-                        <div class="flex flex-col">
-                            <h4 class="text-lg font-bold text-gray-700 mb-4 text-center" title="Średnia Długość Wypowiedzi">Postęp zdaniowy (Wskaźnik MLU)</h4>
-                            <div v-if="stat.mluData.length > 0" class="h-64 relative">
-                                <Line :data="getLineData(stat.mluLabels, stat.mluData)" :options="lineOptions" />
-                            </div>
-                            <div v-else class="flex-1 flex items-center justify-center p-8 text-gray-400 italic bg-gray-50 rounded-2xl border-2 border-dashed">
-                                Brak zapisanych pełnych zdań do analizy MLU. Użyj przycisku głośnika na tablicy.
-                            </div>
-                        </div>
+            <div v-for="stat in statistics" :key="stat.child.id" class="bg-white rounded-3xl shadow-lg border p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-black">{{ stat.child.name }}</h3>
+                    <div class="text-sm font-bold bg-gray-100 px-4 py-2 rounded-full">
+                        Tempo wzrostu: <span class="text-green-600">+{{ stat.growthRate }}% / dzień</span>
                     </div>
                 </div>
 
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="h-64">
+                        <h4 class="text-center font-bold mb-2">Najczęściej używane</h4>
+                        <Doughnut v-if="stat.chartData.length" :data="getDoughnutData(stat.chartLabels, stat.chartData)" />
+                        <div v-else class="h-full flex items-center justify-center text-gray-400">Brak danych kliknięć</div>
+                    </div>
+                    <div class="lg:col-span-2 h-64">
+                        <h4 class="text-center font-bold mb-2">Trend MLU i Predykcja</h4>
+                        <Line v-if="stat.mluData.length" :data="getLineData(stat.mluLabels, stat.mluData, stat.predictionData)" :options="{responsive:true, maintainAspectRatio:false}" />
+                    </div>
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>

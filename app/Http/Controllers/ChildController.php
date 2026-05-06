@@ -324,33 +324,61 @@ class ChildController extends Controller
         $statistics = [];
 
         foreach ($children as $child) {
-            $stats = \App\Models\ClickLog::where('child_id', $child->id)
-                ->select('pictogram_id', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
-                ->groupBy('pictogram_id')
-                ->orderByDesc('total')
+            // 1. Najczęściej używane słowa (Doughnut Chart)
+            $mostUsed = \App\Models\ClickLog::where('child_id', $child->id)
+                ->join('pictograms', 'click_logs.pictogram_id', '=', 'pictograms.id')
+                ->select('pictograms.name', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+                ->groupBy('pictograms.name')
+                ->orderBy('total', 'desc')
                 ->limit(5)
-                ->with('pictogram')
                 ->get();
 
+            // 2. Historia MLU (Line Chart)
             $mluData = \App\Models\SentenceLog::where('child_id', $child->id)
-                ->where('created_at', '>=', now()->subDays(14))
                 ->select(\Illuminate\Support\Facades\DB::raw('DATE(created_at) as date'), \Illuminate\Support\Facades\DB::raw('AVG(length) as mlu'))
-                ->groupBy('date')
-                ->orderBy('date', 'asc')
-                ->get();
+                ->groupBy('date')->orderBy('date', 'asc')->get();
+
+            // 3. Obliczanie trendu i predykcji
+            $historyArray = $mluData->pluck('mlu')->map(fn($val) => (float)$val)->toArray();
+            $trend = $this->calculateTrend($historyArray);
+
+            $predictionData = [];
+            $lastIndex = count($historyArray);
+            if ($lastIndex >= 2) {
+                for ($i = 1; $i <= 30; $i++) {
+                    $val = $trend['a'] * ($lastIndex + $i) + $trend['b'];
+                    $predictionData[] = round(max(1, $val), 2);
+                }
+            }
 
             $statistics[] = [
                 'child' => $child,
-                'chartLabels' => $stats->map(fn($log) => $log->pictogram->name),
-                'chartData' => $stats->map(fn($log) => $log->total),
+                'chartLabels' => $mostUsed->pluck('name'),
+                'chartData' => $mostUsed->pluck('total'),
                 'mluLabels' => $mluData->map(fn($log) => $log->date),
                 'mluData' => $mluData->map(fn($log) => round($log->mlu, 2)),
+                'predictionData' => $predictionData,
+                'growthRate' => round($trend['a'] * 100, 1) // Wskaźnik tempa rozwoju
             ];
         }
 
         return \Inertia\Inertia::render('Statistics/Index', [
             'statistics' => $statistics
         ]);
+    }
+
+    private function calculateTrend($data) {
+        $n = count($data);
+        if ($n < 2) return ['a' => 0, 'b' => 0];
+        $sumX = 0; $sumY = 0; $sumXY = 0; $sumX2 = 0;
+        foreach ($data as $x => $y) {
+            $sumX += $x; $sumY += $y;
+            $sumXY += ($x * $y); $sumX2 += ($x * $x);
+        }
+        $denominator = ($n * $sumX2 - $sumX * $sumX);
+        $a = $denominator == 0 ? 0 : ($n * $sumXY - $sumX * $sumY) / $denominator;
+        $b = ($sumY - $a * $sumX) / $n;
+        return ['a' => $a, 'b' => $b];
     }
     public function update(Request $request, Child $child)
     {
