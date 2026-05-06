@@ -45,6 +45,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/children/{child}/update', [\App\Http\Controllers\ChildController::class, 'update'])->name('children.update');
     Route::get('/arasaac/search', [ArasaacController::class, 'search'])->name('arasaac.search');
 
+    Route::get('/children/{child}/quiz', [App\Http\Controllers\ChildController::class, 'quiz'])->name('children.quiz');
+    Route::post('/children/{child}/quiz', [App\Http\Controllers\ChildController::class, 'saveQuiz'])->name('children.quiz.save');
     Route::get('/children', [ChildController::class, 'index'])->name('children.index');
     Route::get('/children/create', [ChildController::class, 'create'])->name('children.create');
     Route::post('/children', [ChildController::class, 'store'])->name('children.store');

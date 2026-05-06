@@ -297,12 +297,10 @@ class ChildController extends Controller
             }
         }
 
-        // Sortowanie malejąco według częstotliwości wystąpień po danym symbolu
         arsort($transitions);
         $predictedIds = array_slice(array_keys($transitions), 0, 4);
 
         if (empty($predictedIds)) {
-            // Fallback: jeśli nie znaleziono wzorców dla tego słowa, podaj globalnie najczęstsze
             $popularIds = ClickLog::where('child_id', $child->id)
                 ->select('pictogram_id', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
                 ->groupBy('pictogram_id')
@@ -312,7 +310,6 @@ class ChildController extends Controller
             $predictedIds = $popularIds->toArray();
         }
 
-        // Pobranie modeli i zachowanie kolejności z predykcji
         $pictograms = Pictogram::whereIn('id', $predictedIds)->get();
         $sortedPictograms = $pictograms->sortBy(function($model) use ($predictedIds) {
             return array_search($model->id, $predictedIds);
@@ -335,7 +332,6 @@ class ChildController extends Controller
                 ->with('pictogram')
                 ->get();
 
-            // Pobieranie MLU pogrupowane po dniach z ostatnich 14 dni
             $mluData = \App\Models\SentenceLog::where('child_id', $child->id)
                 ->where('created_at', '>=', now()->subDays(14))
                 ->select(\Illuminate\Support\Facades\DB::raw('DATE(created_at) as date'), \Illuminate\Support\Facades\DB::raw('AVG(length) as mlu'))
@@ -446,5 +442,38 @@ class ChildController extends Controller
             'child' => $child,
             'planPictograms' => $planPictograms
         ]);
+    }
+    public function quiz(Child $child)
+    {
+        if ($child->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        // Pobieramy losowe piktogramy z tablicy dziecka, żeby wygenerować pytania
+        $pictograms = $child->pictograms()->inRandomOrder()->limit(20)->get();
+
+        return \Inertia\Inertia::render('Children/Quiz', [
+            'child' => $child,
+            'pictograms' => $pictograms
+        ]);
+    }
+
+    public function saveQuiz(Request $request, Child $child)
+    {
+        if ($child->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'score' => 'required|integer|min:0',
+            'total' => 'required|integer|min:1',
+        ]);
+
+        $child->quizResults()->create([
+            'score' => $request->score,
+            'total_questions' => $request->total,
+        ]);
+
+        return redirect()->route('children.index')->with('success', 'Trening zakończony! Wynik zapisany.');
     }
 }

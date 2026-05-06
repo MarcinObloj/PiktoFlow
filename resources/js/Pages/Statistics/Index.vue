@@ -94,7 +94,6 @@ const lineOptions = {
                             </div>
                         </div>
 
-                        <!-- Rozwój MLU (Mean Length of Utterance) -->
                         <div class="flex flex-col">
                             <h4 class="text-lg font-bold text-gray-700 mb-4 text-center" title="Średnia Długość Wypowiedzi">Postęp zdaniowy (Wskaźnik MLU)</h4>
                             <div v-if="stat.mluData.length > 0" class="h-64 relative">
