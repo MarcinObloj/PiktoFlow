@@ -10,7 +10,7 @@ export function useTTS() {
     const loadVoices = () => {
         const availableVoices = window.speechSynthesis.getVoices();
         voices.value = availableVoices;
-        
+
         // Default to first Polish voice if available, otherwise first available
         if (!selectedVoice.value && availableVoices.length > 0) {
             const polishVoice = availableVoices.find(v => v.lang.startsWith('pl'));
@@ -28,20 +28,26 @@ export function useTTS() {
     });
 
     const speak = (text, options = {}) => {
-        if (!('speechSynthesis' in window)) return;
+        if (!window.speechSynthesis) return;
 
         window.speechSynthesis.cancel();
 
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.voice = options.voice || selectedVoice.value;
-        utterance.rate = options.rate || rate.value;
-        utterance.pitch = options.pitch || pitch.value;
-        utterance.volume = options.volume || volume.value;
-        utterance.lang = utterance.voice?.lang || 'pl-PL';
+        const voices = window.speechSynthesis.getVoices();
 
-        if (options.onEnd) {
-            utterance.onend = options.onEnd;
+        if (options.voice) {
+            const selectedVoice = voices.find(v => v.name === options.voice);
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            }
+        } else {
+            const plVoice = voices.find(v => v.lang.includes('pl'));
+            if (plVoice) utterance.voice = plVoice;
         }
+
+        utterance.rate = parseFloat(options.rate) || 1;
+        utterance.pitch = parseFloat(options.pitch) || 1;
+        utterance.volume = parseFloat(options.volume) || 1;
 
         window.speechSynthesis.speak(utterance);
     };
