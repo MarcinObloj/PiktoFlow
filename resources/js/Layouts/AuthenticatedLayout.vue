@@ -98,6 +98,9 @@ watch(showingNavigationDropdown, (value) => {
                             <ResponsiveNavLink :href="route('children.index')" :active="route().current('children.*')" @click="closeMenu" class="text-xl font-bold py-4">
                                 👦 Profile Dzieci
                             </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('statistics.index')" :active="route().current('statistics.*')" @click="closeMenu" class="text-xl font-bold py-4">
+                                📈 Statystyki
+                            </ResponsiveNavLink>
                         </div>
 
                         <div class="pt-4">

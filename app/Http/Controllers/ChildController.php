@@ -11,15 +11,13 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 use App\Models\Category;
+
 class ChildController extends Controller
 {
     public function index()
     {
         $children = auth()->user()->children;
-
-        return Inertia::render('Children/Index', [
-            'children' => $children
-        ]);
+        return Inertia::render('Children/Index', ['children' => $children]);
     }
 
     public function create()
@@ -45,7 +43,6 @@ class ChildController extends Controller
             'tts_volume' => $request->tts_volume ?? 1.0,
         ]);
 
-
         $categoriesDefinition = [
             'Podstawowe' => [
                 'color' => '#10b981',
@@ -69,6 +66,28 @@ class ChildController extends Controller
             ]
         ];
 
+        // SŁOWNIK SYNONIMÓW (Alias Mapping)
+        // Zamiast błędnych ID, podmieniamy szukane frazy na takie, które API rozumie w 100%
+        $searchOverrides = [
+            'ja' => 'mnie',
+            'ty' => 'ciebie',
+            'mama' => 'matka',
+            'tata' => 'ojciec',
+            'szczęśliwy' => 'uśmiech',
+            'smutny' => 'smutek',
+            'zły' => 'gniew',
+            'boję się' => 'przestraszony',
+            'nie lubię' => 'nie znosić',
+            'źle' => 'błąd',
+            'jabłko' => 'owoc jabłoni',
+            'woda' => 'woda mineralna',
+            'banan' => 'owoc banana',
+            'picie' => 'napoje',
+            'chcę' => 'chcieć',
+            'do widzenia' => 'pożegnanie',
+            'nie wiem' => 'nie rozumieć',
+        ];
+
         $allStarterIds = [];
 
         foreach ($categoriesDefinition as $catName => $data) {
@@ -78,18 +97,28 @@ class ChildController extends Controller
             );
 
             foreach ($data['words'] as $word) {
+                // Sprawdzamy czy piktogram o tej nazwie już istnieje w naszej bazie
                 $existing = Pictogram::where('name', ucfirst($word))->first();
 
                 if ($existing) {
                     $allStarterIds[] = $existing->id;
                 } else {
-                    $resp = Http::get("https://api.arasaac.org/api/pictograms/pl/search/" . urlencode($word));
+                    $wordLower = mb_strtolower($word);
+
+                    // Używamy oryginalnego słowa, chyba że mamy dla niego lepszy synonim
+                    $searchTerm = array_key_exists($wordLower, $searchOverrides)
+                        ? $searchOverrides[$wordLower]
+                        : $word;
+
+                    // Pytamy API o nasz synonim
+                    $resp = Http::get("https://api.arasaac.org/api/pictograms/pl/search/" . urlencode($searchTerm));
+
                     if ($resp->successful() && count($resp->json()) > 0) {
                         $picData = $resp->json()[0];
                         $arasaacId = $picData['_id'];
 
                         $newPic = Pictogram::create([
-                            'name' => ucfirst($word),
+                            'name' => ucfirst($word), // Dziecko widzi np. "Mama", a nie "Matka"
                             'category_id' => $category->id,
                             'image_path' => "https://static.arasaac.org/pictograms/{$arasaacId}/{$arasaacId}_300.png",
                             'is_custom' => false
@@ -104,6 +133,7 @@ class ChildController extends Controller
             $child->pictograms()->syncWithoutDetaching($allStarterIds);
         }
 
+        // Obsługa hobby (również z użyciem słownika synonimów)
         if ($request->hobbies) {
             $hobbiesArray = array_map('trim', explode(',', $request->hobbies));
             $hobbyCategory = Category::firstOrCreate(['name' => 'Zainteresowania'], ['color' => '#ec4899']);
@@ -111,13 +141,23 @@ class ChildController extends Controller
 
             foreach ($hobbiesArray as $hobby) {
                 if (empty($hobby)) continue;
-                $response = Http::get("https://api.arasaac.org/api/pictograms/pl/search/" . urlencode($hobby));
+
+                $hobbyLower = mb_strtolower($hobby);
+                $searchTerm = array_key_exists($hobbyLower, $searchOverrides) ? $searchOverrides[$hobbyLower] : $hobby;
+
+                $response = Http::get("https://api.arasaac.org/api/pictograms/pl/search/" . urlencode($searchTerm));
+
                 if ($response->successful() && count($response->json()) > 0) {
                     $picData = $response->json()[0];
                     $arasaacId = $picData['_id'];
+
                     $pictogram = Pictogram::firstOrCreate(
                         ['name' => ucfirst($hobby)],
-                        ['category_id' => $hobbyCategory->id, 'image_path' => "https://static.arasaac.org/pictograms/{$arasaacId}/{$arasaacId}_300.png", 'is_custom' => false]
+                        [
+                            'category_id' => $hobbyCategory->id,
+                            'image_path' => "https://static.arasaac.org/pictograms/{$arasaacId}/{$arasaacId}_300.png",
+                            'is_custom' => false
+                        ]
                     );
                     $attachedHobbyIds[] = $pictogram->id;
                 }
@@ -127,6 +167,7 @@ class ChildController extends Controller
 
         return redirect()->route('children.index');
     }
+
     public function destroy(Child $child)
     {
         if ($child->user_id !== auth()->id()) {
@@ -135,7 +176,7 @@ class ChildController extends Controller
 
         if ($child->avatar_path) {
             $oldPath = str_replace('/storage/', '', $child->avatar_path);
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+            Storage::disk('public')->delete($oldPath);
         }
 
         $child->delete();
@@ -200,11 +241,11 @@ class ChildController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $categories = \App\Models\Category::with('pictograms')->get();
+        $categories = Category::with('pictograms')->get();
 
         $activePictogramIds = $child->pictograms()->pluck('pictograms.id')->toArray();
 
-        return \Inertia\Inertia::render('Children/Manage', [
+        return Inertia::render('Children/Manage', [
             'child' => $child,
             'categories' => $categories,
             'activePictogramIds' => $activePictogramIds
@@ -221,11 +262,11 @@ class ChildController extends Controller
             'pictogram_ids' => 'array',
         ]);
 
-
         $child->pictograms()->sync($request->pictogram_ids);
 
         return redirect()->route('children.index');
     }
+
     public function logClick(Request $request, Child $child)
     {
         $request->validate([
@@ -263,9 +304,8 @@ class ChildController extends Controller
         $lastId = $request->query('last_pictogram_id');
 
         if (!$lastId) {
-            // Jeśli puste zdanie, zasugeruj najpopularniejsze ze wszystkich piktogramów dziecka
             $popularIds = ClickLog::where('child_id', $child->id)
-                ->select('pictogram_id', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+                ->select('pictogram_id', DB::raw('count(*) as total'))
                 ->groupBy('pictogram_id')
                 ->orderByDesc('total')
                 ->limit(4)
@@ -275,7 +315,6 @@ class ChildController extends Controller
             return response()->json($pictograms);
         }
 
-        // Łańcuch Markowa - predykcja następnego symbolu na podstawie historii kliknięć (czas okna: 2 minuty)
         $logs = ClickLog::where('child_id', $child->id)
             ->orderBy('created_at', 'desc')
             ->limit(1000)
@@ -283,12 +322,10 @@ class ChildController extends Controller
 
         $transitions = [];
 
-        // Pętla od tyłu (od najstarszych w ramach pobranego 1000)
         for ($i = count($logs) - 1; $i > 0; $i--) {
             $current = $logs[$i];
-            $next = $logs[$i - 1]; // Kolejne kliknięcie w chronologii czasowej
+            $next = $logs[$i - 1];
 
-            // Jeśli kolejne kliknięcie nastąpiło w ciągu 120 sekund
             if ($current->created_at->diffInSeconds($next->created_at) < 120) {
                 if ($current->pictogram_id == $lastId) {
                     $nextId = $next->pictogram_id;
@@ -302,7 +339,7 @@ class ChildController extends Controller
 
         if (empty($predictedIds)) {
             $popularIds = ClickLog::where('child_id', $child->id)
-                ->select('pictogram_id', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+                ->select('pictogram_id', DB::raw('count(*) as total'))
                 ->groupBy('pictogram_id')
                 ->orderByDesc('total')
                 ->limit(4)
@@ -324,21 +361,18 @@ class ChildController extends Controller
         $statistics = [];
 
         foreach ($children as $child) {
-            // 1. Najczęściej używane słowa (Doughnut Chart)
-            $mostUsed = \App\Models\ClickLog::where('child_id', $child->id)
+            $mostUsed = ClickLog::where('child_id', $child->id)
                 ->join('pictograms', 'click_logs.pictogram_id', '=', 'pictograms.id')
-                ->select('pictograms.name', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+                ->select('pictograms.name', DB::raw('count(*) as total'))
                 ->groupBy('pictograms.name')
                 ->orderBy('total', 'desc')
                 ->limit(5)
                 ->get();
 
-            // 2. Historia MLU (Line Chart)
             $mluData = \App\Models\SentenceLog::where('child_id', $child->id)
-                ->select(\Illuminate\Support\Facades\DB::raw('DATE(created_at) as date'), \Illuminate\Support\Facades\DB::raw('AVG(length) as mlu'))
+                ->select(DB::raw('DATE(created_at) as date'), DB::raw('AVG(length) as mlu'))
                 ->groupBy('date')->orderBy('date', 'asc')->get();
 
-            // 3. Obliczanie trendu i predykcji
             $historyArray = $mluData->pluck('mlu')->map(fn($val) => (float)$val)->toArray();
             $trend = $this->calculateTrend($historyArray);
 
@@ -358,11 +392,11 @@ class ChildController extends Controller
                 'mluLabels' => $mluData->map(fn($log) => $log->date),
                 'mluData' => $mluData->map(fn($log) => round($log->mlu, 2)),
                 'predictionData' => $predictionData,
-                'growthRate' => round($trend['a'] * 100, 1) // Wskaźnik tempa rozwoju
+                'growthRate' => round($trend['a'] * 100, 1)
             ];
         }
 
-        return \Inertia\Inertia::render('Statistics/Index', [
+        return Inertia::render('Statistics/Index', [
             'statistics' => $statistics
         ]);
     }
@@ -380,6 +414,7 @@ class ChildController extends Controller
         $b = ($sumY - $a * $sumX) / $n;
         return ['a' => $a, 'b' => $b];
     }
+
     public function update(Request $request, Child $child)
     {
         if ($child->user_id !== auth()->id()) {
@@ -419,6 +454,7 @@ class ChildController extends Controller
 
         return redirect()->back()->with('success', 'Ustawienia profilu zapisane.');
     }
+
     public function manageSchedule(Child $child)
     {
         if ($child->user_id !== auth()->id()) {
@@ -427,7 +463,7 @@ class ChildController extends Controller
 
         $pictograms = $child->pictograms()->get();
 
-        return \Inertia\Inertia::render('Children/ManageSchedule', [
+        return Inertia::render('Children/ManageSchedule', [
             'child' => $child,
             'availablePictograms' => $pictograms
         ]);
@@ -460,27 +496,27 @@ class ChildController extends Controller
         $planPictograms = [];
 
         if (!empty($planIds)) {
-            $unsorted = \App\Models\Pictogram::whereIn('id', $planIds)->get()->keyBy('id');
+            $unsorted = Pictogram::whereIn('id', $planIds)->get()->keyBy('id');
             $planPictograms = collect($planIds)->map(function($id) use ($unsorted) {
                 return $unsorted->get($id);
             })->filter()->values();
         }
 
-        return \Inertia\Inertia::render('Children/ScheduleBoard', [
+        return Inertia::render('Children/ScheduleBoard', [
             'child' => $child,
             'planPictograms' => $planPictograms
         ]);
     }
+
     public function quiz(Child $child)
     {
         if ($child->user_id !== auth()->id()) {
             abort(403);
         }
 
-        // Pobieramy losowe piktogramy z tablicy dziecka, żeby wygenerować pytania
         $pictograms = $child->pictograms()->inRandomOrder()->limit(20)->get();
 
-        return \Inertia\Inertia::render('Children/Quiz', [
+        return Inertia::render('Children/Quiz', [
             'child' => $child,
             'pictograms' => $pictograms
         ]);
@@ -495,6 +531,8 @@ class ChildController extends Controller
         $request->validate([
             'score' => 'required|integer|min:0',
             'total' => 'required|integer|min:1',
+            'clicked_ids' => 'nullable|array',
+            'sentences' => 'nullable|array',
         ]);
 
         $child->quizResults()->create([
@@ -502,6 +540,24 @@ class ChildController extends Controller
             'total_questions' => $request->total,
         ]);
 
-        return redirect()->route('children.index')->with('success', 'Trening zakończony! Wynik zapisany.');
+        if ($request->has('clicked_ids') && !empty($request->clicked_ids)) {
+            foreach ($request->clicked_ids as $picId) {
+                ClickLog::create([
+                    'child_id' => $child->id,
+                    'pictogram_id' => $picId,
+                ]);
+            }
+        }
+
+        if ($request->has('sentences') && !empty($request->sentences)) {
+            foreach ($request->sentences as $length) {
+                $child->sentenceLogs()->create([
+                    'length' => $length,
+                    'pictogram_ids' => [1],
+                ]);
+            }
+        }
+
+        return redirect()->route('children.index')->with('success', 'Trening zakończony! Statystyki zostały zaktualizowane.');
     }
 }
