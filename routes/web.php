@@ -20,9 +20,9 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     $myCategories = Category::where('user_id', auth()->id())->get();
 
-    $myPictograms = Pictogram::where('is_custom', true)
-        ->orWhereHas('category', function ($query) {
-            $query->where('user_id', auth()->id());
+    $myPictograms = Pictogram::where(function ($query) {
+            $query->where('is_custom', true)
+                  ->where('user_id', auth()->id());
         })
         ->with('category')
         ->get();
@@ -32,6 +32,7 @@ Route::get('/dashboard', function () {
         'myPictograms' => $myPictograms
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
+
 Route::middleware('auth')->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -86,6 +87,7 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('dashboard');
     })->name('categories.destroy');
 });
+
 Route::get('/children/{child}/mediapipe/face_mesh/{file}', function ($child, $file) {
     return redirect()->away('https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/' . $file);
 });

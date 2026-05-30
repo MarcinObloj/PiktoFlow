@@ -14,7 +14,8 @@ class Pictogram extends Model
         'image_path',
         'audio_path',
         'category_id',
-        'is_custom'
+        'is_custom',
+        'user_id',
     ];
 
     public function category()
@@ -22,6 +23,10 @@ class Pictogram extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function children()
     {

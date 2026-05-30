@@ -10,13 +10,11 @@ use Illuminate\Support\Facades\Storage;
 
 class PictogramController extends Controller
 {
-
     public function create()
     {
         $categories = Category::whereNull('user_id')->orWhere('user_id', auth()->id())->get();
         return Inertia::render('Pictograms/Create', ['categories' => $categories]);
     }
-
 
     public function searchArasaac()
     {
@@ -24,15 +22,14 @@ class PictogramController extends Controller
         return Inertia::render('Pictograms/SearchArasaac', ['categories' => $categories]);
     }
 
-
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name'     => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'image' => 'nullable|image|max:2048',
-            'image_url' => 'nullable|string',
-            'audio' => 'nullable|file|mimes:mp3,wav,ogg,webm|max:4096', // Walidacja pliku audio
+            'image'    => 'nullable|image|max:2048',
+            'image_url'=> 'nullable|string',
+            'audio'    => 'nullable|file|mimes:mp3,wav,ogg,webm|max:4096',
         ]);
 
         $finalImagePath = '';
@@ -41,8 +38,7 @@ class PictogramController extends Controller
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('custom_pictograms', 'public');
             $finalImagePath = '/storage/' . $path;
-        }
-        elseif ($request->image_url) {
+        } elseif ($request->image_url) {
             $finalImagePath = $request->image_url;
         }
 
@@ -52,11 +48,12 @@ class PictogramController extends Controller
         }
 
         Pictogram::create([
-            'name' => $request->name,
+            'name'        => $request->name,
             'category_id' => $request->category_id,
-            'image_path' => $finalImagePath,
-            'audio_path' => $finalAudioPath,
-            'is_custom' => true,
+            'image_path'  => $finalImagePath,
+            'audio_path'  => $finalAudioPath,
+            'is_custom'   => true,
+            'user_id'     => auth()->id(),
         ]);
 
         return redirect()->route('dashboard');
@@ -64,6 +61,11 @@ class PictogramController extends Controller
 
     public function destroy(Pictogram $pictogram)
     {
+        // Tylko właściciel może usunąć
+        if ($pictogram->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         if ($pictogram->image_path && !str_starts_with($pictogram->image_path, 'http')) {
             $relativePath = str_replace('/storage/', '', $pictogram->image_path);
             Storage::disk('public')->delete($relativePath);
