@@ -14,11 +14,19 @@ const form = useForm({
     audio: null,
 });
 
+const imagePreview = ref(null);
 const isRecording = ref(false);
 const audioUrl = ref(null);
 let mediaRecorder = null;
 let audioChunks = [];
 const isFakeLoading = ref(false);
+
+const onImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    form.image = file;
+    imagePreview.value = URL.createObjectURL(file);
+};
 
 const startRecording = async () => {
     try {
@@ -27,26 +35,20 @@ const startRecording = async () => {
         audioChunks = [];
 
         mediaRecorder.ondataavailable = (event) => {
-            if (event.data.size > 0) {
-                audioChunks.push(event.data);
-            }
+            if (event.data.size > 0) audioChunks.push(event.data);
         };
 
         mediaRecorder.onstop = () => {
             const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
             audioUrl.value = URL.createObjectURL(audioBlob);
-
-            const file = new File([audioBlob], "nagranie_z_mikrofonu.webm", { type: 'audio/webm' });
-            form.audio = file;
-
+            form.audio = new File([audioBlob], 'nagranie_z_mikrofonu.webm', { type: 'audio/webm' });
             stream.getTracks().forEach(track => track.stop());
         };
 
         mediaRecorder.start();
         isRecording.value = true;
     } catch (err) {
-        console.error("Błąd mikrofonu:", err);
-        alert("Nie udało się połączyć z mikrofonem. Upewnij się, że dałeś przeglądarce uprawnienia!");
+        alert('Nie udało się połączyć z mikrofonem. Upewnij się, że dałeś przeglądarce uprawnienia!');
     }
 };
 
@@ -65,13 +67,12 @@ const clearRecording = () => {
 
 const submit = () => {
     isFakeLoading.value = true;
-    setTimeout(() => {
-        form.post(route('pictograms.store'), {
-            onFinish: () => {
-                isFakeLoading.value = false;
-            }
-        });
-    }, 1500);
+    form.post(route('pictograms.store'), {
+        forceFormData: true,
+        onFinish: () => {
+            isFakeLoading.value = false;
+        },
+    });
 };
 </script>
 
@@ -109,7 +110,11 @@ const submit = () => {
 
                         <div class="bg-gray-50 p-6 rounded-2xl border-2 border-dashed border-gray-200">
                             <label class="block font-bold text-gray-700 text-lg mb-2">Zdjęcie (Wymagane)</label>
-                            <input type="file" @input="form.image = $event.target.files[0]" accept="image/*" class="block w-full text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors" required />
+                            <input type="file" @change="onImageChange" accept="image/*" class="block w-full text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors" required />
+                            <!-- Podgląd zdjęcia -->
+                            <div v-if="imagePreview" class="mt-4">
+                                <img :src="imagePreview" alt="Podgląd" class="w-32 h-32 object-contain rounded-xl border border-gray-200 bg-white shadow" />
+                            </div>
                             <div v-if="form.errors.image" class="text-red-500 text-sm mt-2 font-medium">{{ form.errors.image }}</div>
                         </div>
 
@@ -123,11 +128,9 @@ const submit = () => {
                                     <button v-if="!isRecording" @click.prevent="startRecording" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-full flex items-center gap-2 transition active:scale-95 shadow-md">
                                         <span class="w-3 h-3 bg-white rounded-full"></span> Nagraj głos
                                     </button>
-
                                     <button v-else @click.prevent="stopRecording" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-6 rounded-full flex items-center gap-2 transition active:scale-95 shadow-md animate-pulse border-2 border-red-500">
                                         ⏹️ Zatrzymaj nagrywanie
                                     </button>
-
                                     <span v-if="isRecording" class="text-red-500 font-bold animate-pulse flex items-center gap-2">
                                         <span class="w-2 h-2 bg-red-500 rounded-full"></span> Nagrywanie trwa...
                                     </span>
@@ -146,7 +149,7 @@ const submit = () => {
                                     <hr class="flex-1 border-blue-300">
                                 </div>
 
-                                <input type="file" @input="clearRecording(); form.audio = $event.target.files[0]" accept="audio/*" class="block w-full text-blue-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-white file:text-blue-700 hover:file:bg-blue-100 transition-colors" />
+                                <input type="file" @change="clearRecording(); form.audio = $event.target.files[0]" accept="audio/*" class="block w-full text-blue-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-white file:text-blue-700 hover:file:bg-blue-100 transition-colors" />
                             </div>
 
                             <div v-if="form.errors.audio" class="text-red-500 text-sm mt-2 font-medium">{{ form.errors.audio }}</div>
