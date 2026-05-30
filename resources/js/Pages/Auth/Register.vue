@@ -9,6 +9,7 @@ const form = useForm({
 });
 
 const submit = () => {
+    form.email = form.email.toLowerCase();
     form.post(route('register'), {
         onFinish: () => form.reset('password', 'password_confirmation'),
     });
@@ -45,7 +46,7 @@ const submit = () => {
 
                     <div>
                         <label for="email" class="block text-sm font-bold text-gray-700 mb-1">Adres Email</label>
-                        <input id="email" type="email" v-model="form.email" required placeholder="jan@kowalski.pl" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all text-gray-800 bg-gray-50 focus:bg-white" />
+                        <input id="email" type="email" v-model="form.email" required placeholder="jan@kowalski.pl" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all text-gray-800 bg-gray-50 focus:bg-white lowercase" />
                         <div v-if="form.errors.email" class="text-red-500 text-sm mt-1 font-medium">{{ form.errors.email }}</div>
                     </div>
 
@@ -62,7 +63,7 @@ const submit = () => {
                     </div>
 
                     <button type="submit" :disabled="form.processing" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-3 rounded-xl shadow-lg transition-all disabled:opacity-50 mt-2 active:scale-[0.98]">
-                        Zarejestruj się
+                        {{ form.processing ? 'Tworzenie konta...' : 'Zarejestruj się' }}
                     </button>
                 </form>
 
