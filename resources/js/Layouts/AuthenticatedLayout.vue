@@ -36,12 +36,15 @@ watch(showingNavigationDropdown, (value) => {
                                 <span class="text-2xl font-black text-blue-600 tracking-tight">PiktoFlow</span>
                             </Link>
 
-                            <div class="hidden space-x-10 sm:-my-px sm:ms-10 sm:flex">
+                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')" class="text-sm font-bold uppercase tracking-wider">
                                     Główna Tablica
                                 </NavLink>
                                 <NavLink :href="route('children.index')" :active="route().current('children.*')" class="text-sm font-bold uppercase tracking-wider">
                                     Profile Dzieci
+                                </NavLink>
+                                <NavLink :href="route('templates.index')" :active="route().current('templates.*')" class="text-sm font-bold uppercase tracking-wider">
+                                    📦 Szablony
                                 </NavLink>
                                 <NavLink :href="route('statistics.index')" :active="route().current('statistics.index')" class="text-sm font-bold uppercase tracking-wider">
                                     Statystyki
@@ -63,7 +66,6 @@ watch(showingNavigationDropdown, (value) => {
                                             </button>
                                         </span>
                                     </template>
-
                                     <template #content>
                                         <div class="p-2">
                                             <DropdownLink :href="route('profile.edit')" class="rounded-lg font-medium"> Profil Opiekuna </DropdownLink>
@@ -98,11 +100,13 @@ watch(showingNavigationDropdown, (value) => {
                             <ResponsiveNavLink :href="route('children.index')" :active="route().current('children.*')" @click="closeMenu" class="text-xl font-bold py-4">
                                 👦 Profile Dzieci
                             </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('templates.index')" :active="route().current('templates.*')" @click="closeMenu" class="text-xl font-bold py-4">
+                                📦 Szablony
+                            </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('statistics.index')" :active="route().current('statistics.*')" @click="closeMenu" class="text-xl font-bold py-4">
                                 📈 Statystyki
                             </ResponsiveNavLink>
                         </div>
-
                         <div class="pt-4">
                             <p class="text-xs font-black text-gray-400 uppercase tracking-widest px-4 mb-2">Użytkownik</p>
                             <div class="px-4 py-2 mb-4">
