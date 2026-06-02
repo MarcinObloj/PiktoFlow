@@ -58,7 +58,7 @@ Projekt wykorzystuje środowisko konteneryzacji **Docker** (Laravel Sail). Aby u
 > ./vendor/bin/sail artisan storage:link
 
 **6. Zainstaluj i skompiluj zasoby frontendowe:**
-> ./vendor/bin/sail npm install
+> ./vendor/bin/sail npm install --legacy-peer-deps
 > ./vendor/bin/sail npm run build
 
 **Aplikacja jest gotowa do pracy i dostępna pod adresem: http://localhost**
