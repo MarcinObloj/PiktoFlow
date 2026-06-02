@@ -270,10 +270,11 @@ const verifyPin = () => {
     <div :class="boardClasses">
         <div class="absolute top-4 right-4 z-40 flex gap-4">
 
-            <button v-if="!isEyetrackerActive" @click="toggleEyetracker"
-                    :class="[isCvi ? 'bg-gray-900 text-white border-gray-700' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50']"
-                    class="transition-colors flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold border shadow-sm active:scale-95">
-                <span class="text-xl pointer-events-none">👁️</span> Włącz Eyetracker
+            <button v-if="!isEyetrackerActive" disabled
+                    :class="[isCvi ? 'bg-gray-900 text-gray-600 border-gray-800' : 'bg-gray-100 text-gray-400 border-gray-200']"
+                    class="transition-colors flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold border shadow-sm cursor-not-allowed opacity-75"
+                    title="Ze względu na ograniczenia sprzętowe standardowych kamer, funkcja w budowie.">
+                <span class="text-xl pointer-events-none grayscale opacity-50">👁️</span> Włącz Eyetracker (W budowie)
             </button>
 
             <button v-else-if="isCalibrating" @click="finishCalibration"
@@ -331,7 +332,6 @@ const verifyPin = () => {
                     </div>
                 </div>
 
-                <!-- Predykcje / Sugestie -->
                 <div v-if="predictedPictograms.length > 0" class="flex flex-wrap items-center gap-3 justify-center sm:justify-start px-2 py-2 border-t border-gray-200/50 mt-2">
                     <span :class="isCvi ? 'text-yellow-400' : 'text-gray-500'" class="text-sm font-bold flex items-center gap-1">
                         ✨ Podpowiedzi:
