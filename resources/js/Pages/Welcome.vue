@@ -7,7 +7,6 @@ defineProps({
     canRegister: Boolean,
 });
 
-// Stan otwarcia menu mobilnego
 const isMenuOpen = ref(false);
 </script>
 

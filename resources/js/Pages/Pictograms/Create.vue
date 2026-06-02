@@ -111,7 +111,6 @@ const submit = () => {
                         <div class="bg-gray-50 p-6 rounded-2xl border-2 border-dashed border-gray-200">
                             <label class="block font-bold text-gray-700 text-lg mb-2">Zdjęcie (Wymagane)</label>
                             <input type="file" @change="onImageChange" accept="image/*" class="block w-full text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors" required />
-                            <!-- Podgląd zdjęcia -->
                             <div v-if="imagePreview" class="mt-4">
                                 <img :src="imagePreview" alt="Podgląd" class="w-32 h-32 object-contain rounded-xl border border-gray-200 bg-white shadow" />
                             </div>

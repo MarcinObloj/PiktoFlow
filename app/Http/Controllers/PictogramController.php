@@ -61,7 +61,6 @@ class PictogramController extends Controller
 
     public function destroy(Pictogram $pictogram)
     {
-        // Tylko właściciel może usunąć
         if ($pictogram->user_id !== auth()->id()) {
             abort(403);
         }

@@ -11,7 +11,6 @@ export function useTTS() {
         const availableVoices = window.speechSynthesis.getVoices();
         voices.value = availableVoices;
 
-        // Default to first Polish voice if available, otherwise first available
         if (!selectedVoice.value && availableVoices.length > 0) {
             const polishVoice = availableVoices.find(v => v.lang.startsWith('pl'));
             selectedVoice.value = polishVoice || availableVoices[0];

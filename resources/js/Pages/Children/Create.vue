@@ -25,7 +25,7 @@ const testVoice = () => {
     if (form.tts_voice) {
         voiceToUse = voices.value.find(v => v.name === form.tts_voice);
     }
-    
+
     speak('Cześć! Tak brzmi mój nowy głos.', {
         voice: voiceToUse || selectedVoice.value,
         rate: parseFloat(form.tts_rate),
@@ -64,10 +64,9 @@ const submit = () => {
                             <div v-if="form.errors.age" class="text-red-500 text-sm mt-2">{{ form.errors.age }}</div>
                         </div>
 
-                        <!-- Sekcja TTS -->
                         <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
                             <label class="block font-bold text-blue-900 text-lg mb-4">🗣️ Ustawienia głosu (TTS)</label>
-                            
+
                             <div class="space-y-4">
                                 <div>
                                     <label class="block text-sm font-bold text-blue-800 mb-1">Wybierz głos</label>
@@ -94,7 +93,7 @@ const submit = () => {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <button type="button" @click="testVoice" class="w-full mt-4 bg-blue-200 hover:bg-blue-300 text-blue-800 font-bold py-2 px-4 rounded-xl transition flex items-center justify-center gap-2">
                                 <span>🔊</span> Testuj głos
                             </button>

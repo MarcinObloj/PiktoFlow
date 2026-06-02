@@ -8,7 +8,6 @@ defineProps({
     myPictograms: Array
 });
 
-// --- SYSTEM MODALA USUWANIA ---
 const showDeleteModal = ref(false);
 const deleteType = ref('');
 const deleteId = ref(null);

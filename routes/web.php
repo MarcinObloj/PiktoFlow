@@ -61,12 +61,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/children/{child}/log-sentence', [ChildController::class, 'logSentence'])->name('children.log-sentence');
     Route::get('/children/{child}/predict', [ChildController::class, 'predict'])->name('children.predict');
 
-    // Szablony piktogramów
     Route::get('/templates', [TemplateSetController::class, 'index'])->name('templates.index');
     Route::get('/templates/{templateSet}', [TemplateSetController::class, 'show'])->name('templates.show');
     Route::post('/templates/{templateSet}/apply', [TemplateSetController::class, 'applyToChild'])->name('templates.apply');
 
-    // Eksport PDF
     Route::get('/children/{child}/export-pdf', [TemplateSetController::class, 'exportPdf'])->name('children.export-pdf');
 
     Route::get('/categories/create', function () {

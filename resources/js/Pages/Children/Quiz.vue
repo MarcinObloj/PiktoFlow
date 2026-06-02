@@ -12,7 +12,7 @@ const score = ref(0);
 const isFinished = ref(false);
 const questions = ref([]);
 const showErrorModal = ref(false);
-const showExitModal = ref(false); // NOWY STAN DLA MODALA WYJŚCIA
+const showExitModal = ref(false);
 
 const currentSentence = ref([]);
 const finishedSentencesLengths = ref([]);
@@ -117,9 +117,8 @@ const submitScore = () => {
     });
 };
 
-// NOWE FUNKCJE OBSŁUGI WYJŚCIA
 const exitQuiz = () => {
-    showExitModal.value = true; // Zamiast confirm() otwieramy nasz własny modal
+    showExitModal.value = true;
 };
 
 const confirmExit = () => {

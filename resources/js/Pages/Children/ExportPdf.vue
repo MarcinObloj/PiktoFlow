@@ -15,7 +15,6 @@ onMounted(() => {
 <template>
     <Head :title="'Tablica ' + child.name" />
 
-    <!-- Nagłówek tylko na ekranie -->
     <div class="print:hidden bg-blue-600 text-white px-6 py-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
             <span class="text-2xl">🧩</span>
@@ -29,7 +28,6 @@ onMounted(() => {
         </button>
     </div>
 
-    <!-- Strona do druku -->
     <div class="p-6 max-w-4xl mx-auto">
         <div class="text-center mb-6 border-b border-gray-200 pb-4">
             <h1 class="text-2xl font-black text-gray-900">Tablica komunikacyjna</h1>
@@ -57,10 +55,11 @@ onMounted(() => {
         </div>
     </div>
 
-    <style>
-        @media print {
-            @page { margin: 1.5cm; size: A4; }
-            body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
-        }
-    </style>
+
 </template>
+<style>
+@media print {
+    @page { margin: 1.5cm; size: A4; }
+    body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}
+</style>

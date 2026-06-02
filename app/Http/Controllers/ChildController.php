@@ -66,8 +66,7 @@ class ChildController extends Controller
             ]
         ];
 
-        // SŁOWNIK SYNONIMÓW (Alias Mapping)
-        // Zamiast błędnych ID, podmieniamy szukane frazy na takie, które API rozumie w 100%
+
         $searchOverrides = [
             'ja' => 'mnie',
             'ty' => 'ciebie',
@@ -105,12 +104,10 @@ class ChildController extends Controller
                 } else {
                     $wordLower = mb_strtolower($word);
 
-                    // Używamy oryginalnego słowa, chyba że mamy dla niego lepszy synonim
                     $searchTerm = array_key_exists($wordLower, $searchOverrides)
                         ? $searchOverrides[$wordLower]
                         : $word;
 
-                    // Pytamy API o nasz synonim
                     $resp = Http::get("https://api.arasaac.org/api/pictograms/pl/search/" . urlencode($searchTerm));
 
                     if ($resp->successful() && count($resp->json()) > 0) {
@@ -118,7 +115,7 @@ class ChildController extends Controller
                         $arasaacId = $picData['_id'];
 
                         $newPic = Pictogram::create([
-                            'name' => ucfirst($word), // Dziecko widzi np. "Mama", a nie "Matka"
+                            'name' => ucfirst($word),
                             'category_id' => $category->id,
                             'image_path' => "https://static.arasaac.org/pictograms/{$arasaacId}/{$arasaacId}_300.png",
                             'is_custom' => false
@@ -133,7 +130,6 @@ class ChildController extends Controller
             $child->pictograms()->syncWithoutDetaching($allStarterIds);
         }
 
-        // Obsługa hobby (również z użyciem słownika synonimów)
         if ($request->hobbies) {
             $hobbiesArray = array_map('trim', explode(',', $request->hobbies));
             $hobbyCategory = Category::firstOrCreate(['name' => 'Zainteresowania'], ['color' => '#ec4899']);

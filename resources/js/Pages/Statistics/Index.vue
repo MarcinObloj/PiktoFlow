@@ -11,12 +11,9 @@ ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointE
 const props = defineProps({
     statistics: Array
 });
-// --- AUTOMATYCZNY GENERATOR WNIOSKÓW ---
-// --- AUTOMATYCZNY GENERATOR WNIOSKÓW (Poprawiony) ---
 const dynamicConclusions = computed(() => {
     const stats = props.statistics;
 
-    // Zabezpieczenie, gdy jest za mało danych
     if (!stats || stats.length < 2) {
         return {
             title: "Oczekiwanie na dane...",
@@ -25,18 +22,15 @@ const dynamicConclusions = computed(() => {
         };
     }
 
-    // Sortujemy profile po tempie wzrostu (od najlepszego do najsłabszego)
     const sortedStats = [...stats].sort((a, b) => b.growthRate - a.growthRate);
     const bestGroup = sortedStats[0];
     const worstGroup = sortedStats[sortedStats.length - 1];
 
-    // MĄDRE OBLICZANIE RÓŻNICY (Zabezpieczenie przed ujemnymi wynikami / zerem)
     let differenceText = "";
     if (worstGroup.growthRate > 0) {
         let diff = Math.round((bestGroup.growthRate / worstGroup.growthRate) * 100 - 100);
         differenceText = `o ${diff}% lepszy`;
     } else {
-        // Jeśli najsłabsza grupa ma wynik <= 0, używamy punktów procentowych
         let diff = (bestGroup.growthRate - worstGroup.growthRate).toFixed(1);
         differenceText = `wyższy o ${diff} punktów proc.`;
     }
@@ -56,7 +50,6 @@ const getDoughnutData = (labels, data) => ({
 });
 
 const getLineData = (labels = [], historyData = [], predictionData = []) => {
-    // Zabezpieczenie przed pustymi danymi
     const safePrediction = predictionData || [];
     const safeHistory = historyData || [];
     const safeLabels = labels || [];

@@ -244,7 +244,6 @@ const submitUpdate = () => {
             </div>
         </div>
 
-        <!-- Modal usuwania -->
         <div v-if="showDeleteModal" class="fixed inset-0 z-[110] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
             <div class="bg-white rounded-[2rem] p-8 sm:p-10 max-w-md w-full shadow-2xl text-center border-4 border-red-100 flex flex-col items-center">
                 <div class="text-6xl mb-6">🗑️</div>

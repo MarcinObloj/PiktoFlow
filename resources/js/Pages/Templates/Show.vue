@@ -35,7 +35,6 @@ const apply = () => {
                 ✅ Szablon został przypisany do dziecka!
             </div>
 
-            <!-- Przypisz do dziecka -->
             <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 mb-8">
                 <h3 class="font-bold text-gray-800 text-lg mb-4">📌 Przypisz do dziecka</h3>
                 <p class="text-gray-500 text-sm mb-4">{{ template.description }}</p>
@@ -61,7 +60,6 @@ const apply = () => {
                 </div>
             </div>
 
-            <!-- Podgląd piktogramów -->
             <h3 class="font-bold text-gray-800 text-lg mb-4">Piktogramy w zestawie ({{ template.items.length }})</h3>
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 <div
