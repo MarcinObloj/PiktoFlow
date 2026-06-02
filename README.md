@@ -12,7 +12,7 @@ PiktoFlow to kompleksowe narzędzie terapeutyczne, wyposażone w:
 
 * **Inteligentny System Audio:** Tablica potrafi budować całe zdania, płynnie łącząc systemowy syntezator mowy (Web Speech API / TTS) z autorskimi nagraniami audio dodanymi przez opiekuna (nagrywanymi bezpośrednio w przeglądarce za pomocą Web MediaRecorder API).
 * **Tryb Wysokiego Kontrastu (CVI Mode):** Dedykowany widok dla pacjentów z korowymi zaburzeniami widzenia. Zmienia układ kolorystyczny na głęboką czerń z jaskrawymi obramowaniami, maksymalizując widoczność i redukując przebodźcowanie.
-* **Wsparcie dla Eyetrackera:** Zoptymalizowane obszary aktywne (hitboxy) oraz wbudowana integracja z WebGazer.js pozwalają na obsługę tablicy za pomocą wzroku, otwierając system na pacjentów ze znaczną niepełnosprawnością ruchową.
+* **Wsparcie dla Eyetrackera:** Zoptymalizowane obszary aktywne (hitboxy) oraz wbudowana integracja z WebGazer.js pozwalają na obsługę tablicy za pomocą wzroku, otwierając system na pacjentów ze znaczną niepełnosprawnością ruchową.(wersja testowa, działająca słabo, ze względu na ograniczone możliwości sprzętowe)
 * **Wizualny Plan Dnia:** Moduł prezentujący sekwencje chronologiczne, redukujący lęk u pacjentów ze spektrum autyzmu poprzez budowanie rutyny i przewidywalności.
 * **Generator Tablic Offline:** Możliwość wygenerowania i eksportu do formatu PDF idealnie sformatowanej siatki piktogramów, gotowej do wydruku.
 * **Integracja z API ARASAAC i Mapowanie Aliasów:** Wbudowana wyszukiwarka połączona z bazą ponad 10 000 darmowych piktogramów, wspierana autorskim systemem eliminacji homonimii.
