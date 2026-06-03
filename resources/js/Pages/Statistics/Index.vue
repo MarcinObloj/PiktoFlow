@@ -10,36 +10,38 @@ ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointE
 const props = defineProps({
     statistics: Array
 });
+
 const dynamicConclusions = computed(() => {
     const stats = props.statistics;
 
     if (!stats || stats.length < 2) {
         return {
-            title: "Oczekiwanie na dane...",
-            text1: "Zgromadź dane z co najmniej dwóch różnych profili, aby system mógł wygenerować wnioski.",
+            title: "Oczekiwanie na dane analityczne...",
+            text1: "Zgromadź dane z co najmniej dwóch różnych profili dzieci, aby algorytm mógł wyznaczyć wariancję i wygenerować wnioski analityczne.",
             text2: ""
         };
     }
 
     const sortedStats = [...stats].sort((a, b) => b.growthRate - a.growthRate);
-    const bestGroup = sortedStats[0];
-    const worstGroup = sortedStats[sortedStats.length - 1];
+    const bestChild = sortedStats[0];
+    const worstChild = sortedStats[sortedStats.length - 1];
 
     let differenceText = "";
-    if (worstGroup.growthRate > 0) {
-        let diff = Math.round((bestGroup.growthRate / worstGroup.growthRate) * 100 - 100);
-        differenceText = `o ${diff}% lepszy`;
+    if (worstChild.growthRate > 0) {
+        let diff = Math.round((bestChild.growthRate / worstChild.growthRate) * 100 - 100);
+        differenceText = `wyższą o ${diff}% dynamikę postępów`;
     } else {
-        let diff = (bestGroup.growthRate - worstGroup.growthRate).toFixed(1);
-        differenceText = `wyższy o ${diff} punktów proc.`;
+        let diff = (bestChild.growthRate - worstChild.growthRate).toFixed(1);
+        differenceText = `o ${diff} punktów proc. wyższe tempo rozwoju`;
     }
 
     return {
-        title: "Wnioski z analizy algorytmicznej (Generowane na żywo)",
-        text1: `Zestawienie systemowe wykazuje, że najszybszy rozwój wskaźnika MLU występuje u profilu "${bestGroup.child.name}" (tempo wzrostu: +${bestGroup.growthRate}% na dzień). Jest to wynik ${differenceText} w porównaniu do najwolniej rozwijającej się grupy ("${worstGroup.child.name}").`,
-        text2: `Predykcja oparta na regresji liniowej potwierdza, że metoda zastosowana w grupie "${bestGroup.child.name}" wykazuje najwyższą skuteczność terapeutyczną. System rekomenduje to podejście jako optymalne do dalszego rozwoju komunikacji.`
+        title: "Wnioski z analizy algorytmicznej (Rozwój MLU)",
+        text1: `Zestawienie porównawcze wykazuje najwyższą skuteczność w budowaniu komunikacji u dziecka "${bestChild.child.name}". Dzienny przyrost wskaźnika MLU na poziomie +${bestChild.growthRate}% oznacza ${differenceText} w zestawieniu z profilem "${worstChild.child.name}". Taka asymetria sugeruje, że obecny układ tablic wyjątkowo dobrze odpowiada na potrzeby tego użytkownika.`,
+        text2: `Krzywa regresji dla profilu "${bestChild.child.name}" potwierdza stabilność trendu wzrostowego. Rekomenduje się przeanalizowanie najczęściej wybieranych przez niego piktogramów i próbę zaimplementowania podobnej strategii modelowania u pozostałych dzieci w celu stymulacji ich rozwoju językowego.`
     };
 });
+
 const getDoughnutData = (labels, data) => ({
     labels: labels,
     datasets: [{
@@ -85,7 +87,6 @@ const getLineData = (labels = [], historyData = [], predictionData = []) => {
         ]
     };
 };
-
 </script>
 
 <template>

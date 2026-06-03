@@ -80,7 +80,7 @@ const submit = () => {
 
                 <div class="mb-8">
                     <div class="relative">
-com                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center justify-center pointer-events-none">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center justify-center pointer-events-none">
                             <span class="text-gray-400 text-xl leading-none">🔍</span>
                         </div>
                         <input
