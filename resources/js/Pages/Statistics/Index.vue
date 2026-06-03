@@ -5,7 +5,6 @@ import { computed } from 'vue';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title, Filler } from 'chart.js';
 import { Doughnut, Line } from 'vue-chartjs';
 
-// REJESTRACJA FILLERA - to naprawi błąd!
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title, Filler);
 
 const props = defineProps({
