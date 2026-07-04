@@ -323,7 +323,14 @@ class ChildController extends Controller
         }
 
         $lastId = $request->query('last_pictogram_id');
-        $pictograms = $this->predictionService->predictNextPictograms($child, $lastId ? (int) $lastId : null);
+        $excludeIds = $request->query('exclude_ids', []);
+        
+        // Convert to array of ints if passed as comma separated string
+        if (is_string($excludeIds)) {
+            $excludeIds = array_map('intval', explode(',', $excludeIds));
+        }
+
+        $pictograms = $this->predictionService->predictNextPictograms($child, $lastId ? (int) $lastId : null, $excludeIds);
 
         return response()->json($pictograms);
     }

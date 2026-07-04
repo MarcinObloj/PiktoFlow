@@ -130,15 +130,19 @@ const getLineData = (labels = [], historyData = [], predictionData = []) => {
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="h-64">
+                    <div class="h-64 flex flex-col">
                         <h4 class="text-center font-bold mb-2">Najczęściej używane</h4>
-                        <Doughnut v-if="stat.chartData.length" :data="getDoughnutData(stat.chartLabels, stat.chartData)" />
-                        <div v-else class="h-full flex items-center justify-center text-gray-400">Brak danych kliknięć</div>
+                        <div class="w-full h-full flex-1 min-h-[12rem] relative">
+                            <Doughnut v-if="stat.chartData?.length > 0" :data="getDoughnutData(stat.chartLabels, stat.chartData)" :options="{responsive:true, maintainAspectRatio:false}" />
+                            <div v-else class="w-full h-full flex items-center justify-center text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                                Brak danych kliknięć
+                            </div>
+                        </div>
                     </div>
                     <div class="lg:col-span-2 h-64 flex flex-col">
                         <h4 class="text-center font-bold mb-2">Trend MLU i Predykcja</h4>
-                        <div class="w-full h-full flex-1 min-h-[12rem]">
-                            <Line v-if="stat.mluData.length > 0" :data="getLineData(stat.mluLabels, stat.mluData, stat.predictionData)" :options="{responsive:true, maintainAspectRatio:false}" />
+                        <div class="w-full h-full flex-1 min-h-[12rem] relative">
+                            <Line v-if="stat.mluData?.length > 0" :data="getLineData(stat.mluLabels, stat.mluData, stat.predictionData)" :options="{responsive:true, maintainAspectRatio:false}" />
                             <div v-else class="w-full h-full flex items-center justify-center text-gray-400 font-medium bg-gray-50 rounded-xl border border-dashed border-gray-200">
                                 Brak historii zbudowanych zdań (MLU) do analizy.
                             </div>

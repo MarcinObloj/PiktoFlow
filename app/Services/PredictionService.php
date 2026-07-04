@@ -12,10 +12,10 @@ class PredictionService
     /**
      * Predict the next pictograms based on the last clicked pictogram using Markov Chains.
      */
-    public function predictNextPictograms(Child $child, ?int $lastId, int $limit = 4)
+    public function predictNextPictograms(Child $child, ?int $lastId, array $excludeIds = [], int $limit = 4)
     {
         if (!$lastId) {
-            return $this->getMostPopularPictograms($child->id, $limit);
+            return $this->getMostPopularPictograms($child->id, $excludeIds, $limit);
         }
 
         // Get recent logs for this child to find transitions
@@ -35,7 +35,10 @@ class PredictionService
             if ($current->created_at->diffInSeconds($next->created_at) < 120) {
                 if ($current->pictogram_id == $lastId) {
                     $nextId = $next->pictogram_id;
-                    $transitions[$nextId] = ($transitions[$nextId] ?? 0) + 1;
+                    // Don't predict the exact same word or words already in the sentence
+                    if ($nextId != $lastId && !in_array($nextId, $excludeIds)) {
+                        $transitions[$nextId] = ($transitions[$nextId] ?? 0) + 1;
+                    }
                 }
             }
         }
@@ -45,13 +48,7 @@ class PredictionService
 
         // Fallback to most popular if no predictions found
         if (empty($predictedIds)) {
-            $popularIds = ClickLog::where('child_id', $child->id)
-                ->select('pictogram_id', DB::raw('count(*) as total'))
-                ->groupBy('pictogram_id')
-                ->orderByDesc('total')
-                ->limit($limit)
-                ->pluck('pictogram_id');
-            $predictedIds = $popularIds->toArray();
+            return $this->getMostPopularPictograms($child->id, $excludeIds, $limit);
         }
 
         $pictograms = Pictogram::whereIn('id', $predictedIds)->get();
@@ -63,10 +60,15 @@ class PredictionService
     /**
      * Get the most popular pictograms for a child as a fallback.
      */
-    private function getMostPopularPictograms(int $childId, int $limit)
+    private function getMostPopularPictograms(int $childId, array $excludeIds, int $limit)
     {
-        $popularIds = ClickLog::where('child_id', $childId)
-            ->select('pictogram_id', DB::raw('count(*) as total'))
+        $query = ClickLog::where('child_id', $childId);
+        
+        if (!empty($excludeIds)) {
+            $query->whereNotIn('pictogram_id', $excludeIds);
+        }
+
+        $popularIds = $query->select('pictogram_id', DB::raw('count(*) as total'))
             ->groupBy('pictogram_id')
             ->orderByDesc('total')
             ->limit($limit)

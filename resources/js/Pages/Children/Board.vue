@@ -18,9 +18,14 @@ const predictedPictograms = ref([]);
 
 const fetchPredictions = async () => {
     const lastId = sentence.value.length > 0 ? sentence.value[sentence.value.length - 1].id : null;
+    const excludeIds = sentence.value.map(p => p.id).join(',');
+
     try {
         const response = await axios.get(route('children.predict', props.child.id), {
-            params: { last_pictogram_id: lastId }
+            params: { 
+                last_pictogram_id: lastId,
+                exclude_ids: excludeIds 
+            }
         });
         predictedPictograms.value = response.data;
     } catch (error) {
@@ -274,86 +279,96 @@ const verifyPin = () => {
     <Head :title="'Tablica - ' + child.name" />
 
     <div :class="boardClasses">
-        <div class="absolute top-4 right-4 z-40 flex gap-4">
-
-            <button v-if="!isEyetrackerActive" disabled
-                    :class="[isCvi ? 'bg-gray-900 text-gray-600 border-gray-800' : 'bg-gray-100 text-gray-400 border-gray-200']"
-                    class="transition-colors flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold border shadow-sm cursor-not-allowed opacity-75"
-                    title="Ze względu na ograniczenia sprzętowe standardowych kamer, funkcja w budowie.">
-                <span class="text-xl pointer-events-none grayscale opacity-50">👁️</span> Włącz Eyetracker (W budowie)
-            </button>
-
-            <button v-else-if="isCalibrating" @click="finishCalibration"
-                    :class="[isCvi ? 'bg-yellow-400 text-black shadow-[0_0_15px_rgba(250,204,21,0.6)]' : 'bg-green-500 text-white border-green-600 hover:bg-green-600']"
-                    class="transition-colors flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold border shadow-md animate-pulse active:scale-95">
-                <span class="text-xl pointer-events-none">🎯</span> Zakończ kalibrację
-            </button>
-
-            <button v-else @click="toggleEyetracker"
-                    :class="[isCvi ? 'bg-red-900 text-white border-red-700' : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100']"
-                    class="transition-colors flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold border shadow-sm active:scale-95">
-                <span class="text-xl pointer-events-none">🛑</span> Wyłącz Eyetracker
-            </button>
-
-            <button @click="openPinModal"
-                    :class="[isCvi ? 'bg-gray-900 text-white border-gray-700' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50']"
-                    class="transition-colors flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold border shadow-sm active:scale-95">
-                <span class="text-xl pointer-events-none">🔒</span> Wyjdź
-            </button>
-        </div>
-
-        <div class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 pt-24">
-            <div :class="isCvi ? 'bg-black border-4 border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.3)]' : 'bg-blue-50 border-4 border-blue-200 shadow-sm'"
-                 class="rounded-3xl p-4 mb-8 transition-all flex flex-col gap-4">
-                <div class="flex items-center gap-4 min-h-[120px]">
-                    <div :class="isCvi ? 'bg-black border-yellow-400/50' : 'bg-white border-blue-200'"
-                         class="flex-1 flex flex-wrap justify-center gap-2 p-4 rounded-2xl border-2 border-dashed min-h-[120px] items-center text-gray-400">
-                        <span v-if="sentence.length === 0" class="text-lg font-medium text-center">Ułóż zdanie klikając w obrazki...</span>
-
-                        <button v-for="(p, index) in sentence" :key="index"
-                                @click="sentence.splice(index, 1)"
-                                :aria-label="'Usuń ' + p.name + ' ze zdania'"
-                                :class="isCvi ? 'border-yellow-400 bg-black' : 'border-gray-200 bg-white'"
-                                class="border-2 rounded-xl p-2 w-24 h-24 flex flex-col items-center justify-center shadow-sm hover:bg-red-50 cursor-pointer transition-transform hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
-                            <img v-if="p.image_path" :src="p.image_path" :alt="p.name" loading="lazy" class="w-10 h-10 object-contain mb-1 rounded pointer-events-none" />
-                            <span :class="isCvi ? 'text-white' : 'text-gray-800'" class="text-xs font-bold text-center truncate w-full pointer-events-none">{{ p.name }}</span>
+        <!-- HEADER KONTROLNY (STICKY) -->
+        <div class="sticky top-0 z-40 p-4 sm:p-6 lg:p-8 border-b transition-colors shadow-sm" :class="isCvi ? 'bg-black border-yellow-400' : 'bg-white/95 backdrop-blur border-gray-100'">
+            <div class="max-w-7xl mx-auto flex flex-col gap-6">
+                <!-- PRZYCISKI -->
+                <div class="flex flex-wrap justify-between items-center gap-4 w-full">
+                    <h2 class="text-xl font-bold truncate hidden sm:block" :class="isCvi ? 'text-yellow-400' : 'text-gray-700'">Tablica: {{ child.name }}</h2>
+                    <div class="flex flex-wrap gap-2 sm:gap-4 ml-auto">
+                        <button v-if="!isEyetrackerActive" disabled
+                                :class="[isCvi ? 'bg-gray-900 text-gray-600 border-gray-800' : 'bg-gray-100 text-gray-400 border-gray-200']"
+                                class="transition-colors flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-2xl text-sm font-bold border shadow-sm cursor-not-allowed opacity-75"
+                                title="Ze względu na ograniczenia sprzętowe standardowych kamer, funkcja w budowie.">
+                            <span class="text-xl pointer-events-none grayscale opacity-50">👁️</span> <span class="hidden sm:inline">Włącz Eyetracker (W budowie)</span>
                         </button>
-                    </div>
-
-                    <div class="flex flex-col gap-3">
-                        <button @click="speakSentence"
-                                aria-label="Odczytaj zdanie"
-                                :class="isCvi ? 'bg-yellow-400 text-black hover:bg-yellow-500' : 'bg-blue-500 text-white hover:bg-blue-600'"
-                                class="eyetracker-target p-4 rounded-2xl shadow-md h-[56px] w-[56px] flex items-center justify-center transition-all active:scale-90 text-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                                data-id="speak-btn">
-                            🔊
+            
+                        <button v-else-if="isCalibrating" @click="finishCalibration"
+                                :class="[isCvi ? 'bg-yellow-400 text-black shadow-[0_0_15px_rgba(250,204,21,0.6)]' : 'bg-green-500 text-white border-green-600 hover:bg-green-600']"
+                                class="transition-colors flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-2xl text-sm font-bold border shadow-md animate-pulse active:scale-95">
+                            <span class="text-xl pointer-events-none">🎯</span> <span class="hidden sm:inline">Zakończ kalibrację</span>
                         </button>
-                        <button @click="clearSentence"
-                                aria-label="Wyczyść zdanie"
-                                :class="isCvi ? 'bg-gray-800 text-white hover:bg-gray-700' : 'bg-red-500 text-white hover:bg-red-600'"
-                                class="eyetracker-target p-4 rounded-2xl shadow-md h-[56px] w-[56px] flex items-center justify-center transition-all active:scale-90 text-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                                data-id="clear-btn">
-                            🗑️
+            
+                        <button v-else @click="toggleEyetracker"
+                                :class="[isCvi ? 'bg-red-900 text-white border-red-700' : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100']"
+                                class="transition-colors flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-2xl text-sm font-bold border shadow-sm active:scale-95">
+                            <span class="text-xl pointer-events-none">🛑</span> <span class="hidden sm:inline">Wyłącz Eyetracker</span>
+                        </button>
+            
+                        <button @click="openPinModal"
+                                :class="[isCvi ? 'bg-gray-900 text-white border-gray-700' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50']"
+                                class="transition-colors flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-2xl text-sm font-bold border shadow-sm active:scale-95">
+                            <span class="text-xl pointer-events-none">🔒</span> Wyjdź
                         </button>
                     </div>
                 </div>
 
-                <div v-if="predictedPictograms.length > 0" class="flex flex-wrap items-center gap-3 justify-center sm:justify-start px-2 py-2 border-t border-gray-200/50 mt-2">
-                    <span :class="isCvi ? 'text-yellow-400' : 'text-gray-500'" class="text-sm font-bold flex items-center gap-1">
-                        ✨ Podpowiedzi:
-                    </span>
-                    <button v-for="p in predictedPictograms" :key="'pred-'+p.id"
-                            @click="addToSentence(p)"
-                            :aria-label="'Dodaj podpowiedź: ' + p.name"
-                            :class="isCvi ? 'bg-black border-yellow-400 text-white hover:bg-yellow-900/30' : 'bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-900'"
-                            class="eyetracker-target flex items-center gap-2 border-2 rounded-xl px-4 py-2 transition-all active:scale-95 shadow-sm focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-purple-500 focus-visible:ring-offset-2"
-                            :data-id="p.id">
-                        <img v-if="p.image_path" :src="p.image_path" :alt="p.name" loading="lazy" class="w-6 h-6 object-contain pointer-events-none" />
-                        <span class="font-bold text-sm pointer-events-none">{{ p.name }}</span>
-                    </button>
+                <!-- POLE BUDOWANIA ZDANIA -->
+                <div :class="isCvi ? 'bg-black border-4 border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.3)]' : 'bg-blue-50 border-4 border-blue-200 shadow-sm'"
+                     class="rounded-3xl p-4 transition-all flex flex-col gap-4">
+                    <div class="flex items-center gap-4 min-h-[120px]">
+                        <div :class="isCvi ? 'bg-black border-yellow-400/50' : 'bg-white border-blue-200'"
+                             class="flex-1 flex flex-wrap justify-center sm:justify-start gap-2 p-4 rounded-2xl border-2 border-dashed min-h-[120px] items-center text-gray-400">
+                            <span v-if="sentence.length === 0" class="text-lg font-medium text-center w-full sm:w-auto">Ułóż zdanie klikając w obrazki...</span>
+    
+                            <button v-for="(p, index) in sentence" :key="index"
+                                    @click="sentence.splice(index, 1)"
+                                    :aria-label="'Usuń ' + p.name + ' ze zdania'"
+                                    :class="isCvi ? 'border-yellow-400 bg-black' : 'border-gray-200 bg-white'"
+                                    class="border-2 rounded-xl p-2 w-24 h-24 flex flex-col items-center justify-center shadow-sm hover:bg-red-50 cursor-pointer transition-transform hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                                <img v-if="p.image_path" :src="p.image_path" :alt="p.name" loading="lazy" class="w-10 h-10 object-contain mb-1 rounded pointer-events-none" />
+                                <span :class="isCvi ? 'text-white' : 'text-gray-800'" class="text-xs font-bold text-center truncate w-full pointer-events-none">{{ p.name }}</span>
+                            </button>
+                        </div>
+    
+                        <div class="flex flex-col gap-3">
+                            <button @click="speakSentence"
+                                    aria-label="Odczytaj zdanie"
+                                    :class="isCvi ? 'bg-yellow-400 text-black hover:bg-yellow-500' : 'bg-blue-500 text-white hover:bg-blue-600'"
+                                    class="eyetracker-target p-4 rounded-2xl shadow-md h-[56px] w-[56px] flex items-center justify-center transition-all active:scale-90 text-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                                    data-id="speak-btn">
+                                🔊
+                            </button>
+                            <button @click="clearSentence"
+                                    aria-label="Wyczyść zdanie"
+                                    :class="isCvi ? 'bg-gray-800 text-white hover:bg-gray-700' : 'bg-red-500 text-white hover:bg-red-600'"
+                                    class="eyetracker-target p-4 rounded-2xl shadow-md h-[56px] w-[56px] flex items-center justify-center transition-all active:scale-90 text-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                                    data-id="clear-btn">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+    
+                    <!-- PODPOWIEDZI -->
+                    <div v-if="predictedPictograms.length > 0" class="flex flex-wrap items-center gap-3 justify-center sm:justify-start px-2 py-2 border-t border-gray-200/50 mt-2">
+                        <span :class="isCvi ? 'text-yellow-400' : 'text-gray-500'" class="text-sm font-bold flex items-center gap-1">
+                            ✨ Podpowiedzi:
+                        </span>
+                        <button v-for="p in predictedPictograms" :key="'pred-'+p.id"
+                                @click="addToSentence(p)"
+                                :aria-label="'Dodaj podpowiedź: ' + p.name"
+                                :class="isCvi ? 'bg-black border-yellow-400 text-white hover:bg-yellow-900/30' : 'bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-900'"
+                                class="eyetracker-target flex items-center gap-2 border-2 rounded-xl px-4 py-2 transition-all active:scale-95 shadow-sm focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-purple-500 focus-visible:ring-offset-2"
+                                :data-id="p.id">
+                            <img v-if="p.image_path" :src="p.image_path" :alt="p.name" loading="lazy" class="w-6 h-6 object-contain pointer-events-none" />
+                            <span class="font-bold text-sm pointer-events-none">{{ p.name }}</span>
+                        </button>
+                    </div>
                 </div>
             </div>
+        </div>
 
+        <div class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8">
             <div v-for="category in localCategories" :key="category.id" class="mb-12 text-center sm:text-left">
                 <h3 :class="isCvi ? 'text-yellow-400 font-black' : 'font-bold text-gray-700'"
                     class="text-2xl mb-6 uppercase tracking-wider px-2"
