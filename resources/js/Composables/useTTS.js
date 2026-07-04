@@ -79,6 +79,10 @@ export function useTTS() {
         utterance.pitch = parseFloat(options.pitch) || 1;
         utterance.volume = parseFloat(options.volume) || 1;
 
+        if (options.onEnd) {
+            utterance.onend = options.onEnd;
+        }
+
         window.speechSynthesis.speak(utterance);
     };
 
