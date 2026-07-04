@@ -135,9 +135,14 @@ const getLineData = (labels = [], historyData = [], predictionData = []) => {
                         <Doughnut v-if="stat.chartData.length" :data="getDoughnutData(stat.chartLabels, stat.chartData)" />
                         <div v-else class="h-full flex items-center justify-center text-gray-400">Brak danych kliknięć</div>
                     </div>
-                    <div class="lg:col-span-2 h-64">
+                    <div class="lg:col-span-2 h-64 flex flex-col">
                         <h4 class="text-center font-bold mb-2">Trend MLU i Predykcja</h4>
-                        <Line v-if="stat.mluData.length" :data="getLineData(stat.mluLabels, stat.mluData, stat.predictionData)" :options="{responsive:true, maintainAspectRatio:false}" />
+                        <div class="flex-1 relative">
+                            <Line v-if="stat.mluData.length" :data="getLineData(stat.mluLabels, stat.mluData, stat.predictionData)" :options="{responsive:true, maintainAspectRatio:false}" />
+                            <div v-else class="absolute inset-0 flex items-center justify-center text-gray-400 font-medium bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                                Brak historii zbudowanych zdań (MLU) do analizy.
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
