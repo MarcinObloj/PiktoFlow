@@ -88,7 +88,7 @@ class ChildController extends Controller
             'zły' => 'gniew',
             'boję się' => 'przestraszony',
             'nie lubię' => 'nie znosić',
-            'źle' => 'błąd',
+            'źle' => 'niepoprawnie',
             'jabłko' => 'owoc jabłoni',
             'woda' => 'woda mineralna',
             'banan' => 'owoc banana',
