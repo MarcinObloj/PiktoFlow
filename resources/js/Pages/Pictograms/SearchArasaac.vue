@@ -35,17 +35,15 @@ const addPictogram = (id, name) => {
     }
 
     isFakeLoading.value = true;
-    setTimeout(() => {
-        router.post(route('pictograms.store'), {
-            name: name,
-            category_id: selectedCategoryId.value,
-            image_url: `https://static.arasaac.org/pictograms/${id}/${id}_300.png`
-        }, {
-            onFinish: () => {
-                isFakeLoading.value = false;
-            }
-        });
-    }, 1500);
+    router.post(route('pictograms.store'), {
+        name: name,
+        category_id: selectedCategoryId.value,
+        image_url: `https://static.arasaac.org/pictograms/${id}/${id}_300.png`
+    }, {
+        onFinish: () => {
+            isFakeLoading.value = false;
+        }
+    });
 };
 </script>
 
