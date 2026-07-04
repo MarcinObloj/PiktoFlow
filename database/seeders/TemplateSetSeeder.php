@@ -15,10 +15,13 @@ class TemplateSetSeeder extends Seeder
             'mama' => 'matka', 'tata' => 'ojciec', 'myć zęby' => 'mycie zębów',
             'śniadanie' => 'jeść', 'obiad' => 'posiłek', 'kolacja' => 'jeść wieczorem',
             'wesoły' => 'uśmiech', 'smutny' => 'smutek', 'zły' => 'gniew',
-            'pić' => 'napoje', 'jabłko' => 'owoc jabłoni', 'chleb' => 'pieczywo',
-            'rysunek' => 'rysować', 'puzzle' => 'układanka',
+            'pić' => 'napoje', 'jabłko' => 2462, 'chleb' => 'pieczywo',
+            'rysunek' => 'rysować', 'puzzle' => 'układanka', 'banan' => 2530, 'woda' => 32464
         ];
         $term = $overrides[mb_strtolower($word)] ?? $word;
+        if (is_numeric($term)) {
+            return "https://static.arasaac.org/pictograms/{$term}/{$term}_300.png";
+        }
         $resp = Http::get('https://api.arasaac.org/api/pictograms/pl/search/' . urlencode($term));
         if ($resp->successful() && count($resp->json()) > 0) {
             $id = $resp->json()[0]['_id'];
