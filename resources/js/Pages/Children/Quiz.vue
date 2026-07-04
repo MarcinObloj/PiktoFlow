@@ -13,6 +13,7 @@ const isFinished = ref(false);
 const questions = ref([]);
 const showErrorModal = ref(false);
 const showExitModal = ref(false);
+const isTransitioning = ref(false);
 
 const currentSentence = ref([]);
 const finishedSentencesLengths = ref([]);
@@ -52,7 +53,7 @@ const generateSentenceQuestions = () => {
 };
 
 const handleHover = (text) => {
-    if (!text) return;
+    if (!text || isTransitioning.value) return;
     speak(text, {
         voice: props.child?.tts_voice,
         rate: props.child?.tts_rate || 1
@@ -60,16 +61,24 @@ const handleHover = (text) => {
 };
 
 const selectWord = (selectedPic) => {
+    if (isTransitioning.value) return;
+    
+    isTransitioning.value = true;
+    
     if (selectedPic.id === questions.value[currentQuestionIndex.value].correct.id) {
         score.value++;
         correctIds.value.push(selectedPic.id);
-        handleHover("Brawo!");
+        
+        // Wywołujemy mowę z ominięciem isTransitioning, ponieważ
+        // samo 'handleHover' wyżej blokuje, a chcemy by to się wypowiedziało:
+        speak("Brawo!", { voice: props.child?.tts_voice, rate: props.child?.tts_rate || 1 });
     } else {
-        handleHover("Spróbuj jeszcze raz");
+        speak("Spróbuj jeszcze raz", { voice: props.child?.tts_voice, rate: props.child?.tts_rate || 1 });
     }
     setTimeout(() => {
         nextQuestion();
-    }, 500);
+        isTransitioning.value = false;
+    }, 2000);
 };
 
 const addToSentence = (pic) => {
@@ -82,6 +91,9 @@ const addToSentence = (pic) => {
 };
 
 const checkSentence = () => {
+    if (isTransitioning.value) return;
+    isTransitioning.value = true;
+    
     const target = questions.value[currentQuestionIndex.value].target;
     const isCorrect = currentSentence.value.every((p, i) => p.id === target[i].id);
 
@@ -89,15 +101,16 @@ const checkSentence = () => {
         score.value++;
         finishedSentencesLengths.value.push(target.length);
         currentSentence.value.forEach(p => correctIds.value.push(p.id));
-        handleHover("Świetne zdanie!");
+        speak("Świetne zdanie!", { voice: props.child?.tts_voice, rate: props.child?.tts_rate || 1 });
     } else {
-        handleHover("Spróbuj jeszcze raz");
+        speak("Spróbuj jeszcze raz", { voice: props.child?.tts_voice, rate: props.child?.tts_rate || 1 });
     }
 
     setTimeout(() => {
         currentSentence.value = [];
         nextQuestion();
-    }, 1000);
+        isTransitioning.value = false;
+    }, 2000);
 };
 
 const nextQuestion = () => {
