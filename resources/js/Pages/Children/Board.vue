@@ -309,7 +309,7 @@ const verifyPin = () => {
                                 :aria-label="'Usuń ' + p.name + ' ze zdania'"
                                 :class="isCvi ? 'border-yellow-400 bg-black' : 'border-gray-200 bg-white'"
                                 class="border-2 rounded-xl p-2 w-24 h-24 flex flex-col items-center justify-center shadow-sm hover:bg-red-50 cursor-pointer transition-transform hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
-                            <img v-if="p.image_path" :src="p.image_path" class="w-10 h-10 object-contain mb-1 rounded pointer-events-none" />
+                            <img v-if="p.image_path" :src="p.image_path" :alt="p.name" loading="lazy" class="w-10 h-10 object-contain mb-1 rounded pointer-events-none" />
                             <span :class="isCvi ? 'text-white' : 'text-gray-800'" class="text-xs font-bold text-center truncate w-full pointer-events-none">{{ p.name }}</span>
                         </button>
                     </div>
@@ -342,7 +342,7 @@ const verifyPin = () => {
                             :class="isCvi ? 'bg-black border-yellow-400 text-white hover:bg-yellow-900/30' : 'bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-900'"
                             class="eyetracker-target flex items-center gap-2 border-2 rounded-xl px-4 py-2 transition-all active:scale-95 shadow-sm focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-purple-500 focus-visible:ring-offset-2"
                             :data-id="p.id">
-                        <img v-if="p.image_path" :src="p.image_path" class="w-6 h-6 object-contain pointer-events-none" />
+                        <img v-if="p.image_path" :src="p.image_path" :alt="p.name" loading="lazy" class="w-6 h-6 object-contain pointer-events-none" />
                         <span class="font-bold text-sm pointer-events-none">{{ p.name }}</span>
                     </button>
                 </div>
@@ -384,7 +384,7 @@ const verifyPin = () => {
                                  :style="{ width: dwellProgress + '%' }">
                             </div>
 
-                            <img v-if="element.image_path" :src="element.image_path" class="w-16 h-16 sm:w-20 sm:h-20 object-contain mb-3 rounded pointer-events-none" />
+                            <img v-if="element.image_path" :src="element.image_path" :alt="element.name" loading="lazy" class="w-16 h-16 sm:w-20 sm:h-20 object-contain mb-3 rounded pointer-events-none" />
                             <div v-else class="text-5xl sm:text-6xl mb-3 pointer-events-none">🖼️</div>
                             <span :class="isCvi ? 'text-white' : 'text-gray-800'" class="text-lg sm:text-xl font-bold text-center leading-tight pointer-events-none">{{ element.name }}</span>
                         </button>
