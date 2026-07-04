@@ -48,9 +48,9 @@ const confirmDeletion = () => {
         <div class="py-8 sm:py-12">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
 
-                    <div class="md:col-span-3 bg-gradient-to-br from-white to-blue-50 overflow-hidden shadow-sm sm:rounded-3xl border border-blue-100 p-6 sm:p-10 flex flex-col md:flex-row justify-between items-center gap-6 relative rounded-2xl">
+                    <div class="md:col-span-full bg-gradient-to-br from-white to-blue-50 overflow-hidden shadow-sm sm:rounded-3xl border border-blue-100 p-6 sm:p-10 flex flex-col md:flex-row justify-between items-center gap-6 relative rounded-2xl">
                         <div class="absolute -top-6 -right-6 sm:-top-10 sm:-right-10 text-8xl sm:text-9xl opacity-10 pointer-events-none">🧩</div>
                         <div class="text-center md:text-left relative z-10">
                             <h3 class="text-3xl sm:text-4xl font-black text-gray-900 mb-3 tracking-tight">Witaj w PiktoFlow!</h3>
@@ -61,36 +61,58 @@ const confirmDeletion = () => {
                         </Link>
                     </div>
 
-                    <div class="bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow rounded-2xl sm:rounded-3xl border border-gray-100 p-6 sm:p-8 flex flex-col justify-between group">
+                    <div class="bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow rounded-2xl sm:rounded-3xl border border-gray-100 p-6 flex flex-col justify-between group">
                         <div>
-                            <div class="w-14 h-14 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center text-3xl mb-5 group-hover:scale-110 transition-transform">📁</div>
-                            <h4 class="text-2xl font-bold text-gray-900 mb-3">Kategorie</h4>
-                            <p class="text-gray-500 mb-8 leading-relaxed text-sm">Zdefiniuj grupy słów, np. "Jedzenie" lub "Emocje".</p>
+                            <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">📁</div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-2">Kategorie</h4>
+                            <p class="text-gray-500 mb-6 leading-relaxed text-sm">Zdefiniuj grupy słów, np. "Jedzenie".</p>
                         </div>
-                        <Link :href="route('categories.create')" class="bg-purple-50 text-purple-700 font-bold py-4 px-6 rounded-2xl hover:bg-purple-100 text-center transition-colors border border-purple-100">
+                        <Link :href="route('categories.create')" class="bg-purple-50 text-purple-700 font-bold py-3 px-4 rounded-xl hover:bg-purple-100 text-center transition-colors border border-purple-100">
                             + Nowa kategoria
                         </Link>
                     </div>
 
-                    <div class="bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow rounded-2xl sm:rounded-3xl border border-gray-100 p-6 sm:p-8 flex flex-col justify-between group">
+                    <div class="bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow rounded-2xl sm:rounded-3xl border border-gray-100 p-6 flex flex-col justify-between group">
                         <div>
-                            <div class="w-14 h-14 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center text-3xl mb-5 group-hover:scale-110 transition-transform">🖼️</div>
-                            <h4 class="text-2xl font-bold text-gray-900 mb-3">Wgraj własne</h4>
-                            <p class="text-gray-500 mb-8 leading-relaxed text-sm">Dodaj własne zdjęcia prosto z aparatu lub dysku.</p>
+                            <div class="w-12 h-12 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">🖼️</div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-2">Wgraj własne</h4>
+                            <p class="text-gray-500 mb-6 leading-relaxed text-sm">Dodaj własne zdjęcia z dysku.</p>
                         </div>
-                        <Link :href="route('pictograms.create')" class="bg-green-50 text-green-700 font-bold py-4 px-6 rounded-2xl hover:bg-green-100 text-center transition-colors border border-green-100">
+                        <Link :href="route('pictograms.create')" class="bg-green-50 text-green-700 font-bold py-3 px-4 rounded-xl hover:bg-green-100 text-center transition-colors border border-green-100">
                             + Dodaj plik
                         </Link>
                     </div>
 
-                    <div class="bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow rounded-2xl sm:rounded-3xl border border-gray-100 p-6 sm:p-8 flex flex-col justify-between group">
+                    <div class="bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow rounded-2xl sm:rounded-3xl border border-gray-100 p-6 flex flex-col justify-between group">
                         <div>
-                            <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-3xl mb-5 group-hover:scale-110 transition-transform">🔍</div>
-                            <h4 class="text-2xl font-bold text-gray-900 mb-3">Baza ARASAAC</h4>
-                            <p class="text-gray-500 mb-8 leading-relaxed text-sm">Wyszukaj gotowe, profesjonalne piktogramy z bazy online.</p>
+                            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">🔍</div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-2">Baza ARASAAC</h4>
+                            <p class="text-gray-500 mb-6 leading-relaxed text-sm">Wyszukaj gotowe piktogramy z sieci.</p>
                         </div>
-                        <Link :href="route('pictograms.arasaac')" class="bg-blue-50 text-blue-700 font-bold py-4 px-6 rounded-2xl hover:bg-blue-100 text-center transition-colors border border-blue-100">
+                        <Link :href="route('pictograms.arasaac')" class="bg-blue-50 text-blue-700 font-bold py-3 px-4 rounded-xl hover:bg-blue-100 text-center transition-colors border border-blue-100">
                             Znajdź w sieci
+                        </Link>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow rounded-2xl sm:rounded-3xl border border-gray-100 p-6 flex flex-col justify-between group">
+                        <div>
+                            <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">📋</div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-2">Szablony</h4>
+                            <p class="text-gray-500 mb-6 leading-relaxed text-sm">Przypisz gotowe zestawy słów.</p>
+                        </div>
+                        <Link :href="route('templates.index')" class="bg-yellow-50 text-yellow-700 font-bold py-3 px-4 rounded-xl hover:bg-yellow-100 text-center transition-colors border border-yellow-100">
+                            Przeglądaj
+                        </Link>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow rounded-2xl sm:rounded-3xl border border-gray-100 p-6 flex flex-col justify-between group">
+                        <div>
+                            <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">📈</div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-2">Analityka</h4>
+                            <p class="text-gray-500 mb-6 leading-relaxed text-sm">Śledź postępy i rozwój dzieci.</p>
+                        </div>
+                        <Link :href="route('statistics.index')" class="bg-rose-50 text-rose-700 font-bold py-3 px-4 rounded-xl hover:bg-rose-100 text-center transition-colors border border-rose-100">
+                            Zobacz statystyki
                         </Link>
                     </div>
                 </div>
