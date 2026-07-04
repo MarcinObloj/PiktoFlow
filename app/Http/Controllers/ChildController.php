@@ -87,6 +87,16 @@ class ChildController extends Controller
             'nie wiem' => 'nie rozumieć',
         ];
 
+        $allWordsToFetch = [];
+        foreach ($categoriesDefinition as $catName => $data) {
+            foreach ($data['words'] as $word) {
+                $allWordsToFetch[] = ucfirst($word);
+            }
+        }
+
+        // Pobieramy istniejące piktogramy jednym zapytaniem
+        $existingPictograms = Pictogram::whereIn('name', $allWordsToFetch)->get()->keyBy('name');
+
         $allStarterIds = [];
 
         foreach ($categoriesDefinition as $catName => $data) {
@@ -96,11 +106,10 @@ class ChildController extends Controller
             );
 
             foreach ($data['words'] as $word) {
-                // Sprawdzamy czy piktogram o tej nazwie już istnieje w naszej bazie
-                $existing = Pictogram::where('name', ucfirst($word))->first();
-
-                if ($existing) {
-                    $allStarterIds[] = $existing->id;
+                $wordCapitalized = ucfirst($word);
+                
+                if ($existingPictograms->has($wordCapitalized)) {
+                    $allStarterIds[] = $existingPictograms->get($wordCapitalized)->id;
                 } else {
                     $wordLower = mb_strtolower($word);
 
@@ -115,7 +124,7 @@ class ChildController extends Controller
                         $arasaacId = $picData['_id'];
 
                         $newPic = Pictogram::create([
-                            'name' => ucfirst($word),
+                            'name' => $wordCapitalized,
                             'category_id' => $category->id,
                             'image_path' => "https://static.arasaac.org/pictograms/{$arasaacId}/{$arasaacId}_300.png",
                             'is_custom' => false
@@ -237,7 +246,12 @@ class ChildController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $categories = Category::with('pictograms')->get();
+        $categories = Category::whereNull('user_id')
+            ->orWhere('user_id', auth()->id())
+            ->with(['pictograms' => function ($query) {
+                $query->whereNull('user_id')
+                      ->orWhere('user_id', auth()->id());
+            }])->get();
 
         $activePictogramIds = $child->pictograms()->pluck('pictograms.id')->toArray();
 

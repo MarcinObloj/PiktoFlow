@@ -122,7 +122,7 @@ const submit = () => {
                                     +
                                 </div>
 
-                                <img v-if="pictogram.image_path" :src="pictogram.image_path" @error="pictogram.image_path = null" :alt="pictogram.name" class="w-16 h-16 sm:w-20 sm:h-20 object-contain mb-3 rounded pointer-events-none drop-shadow-sm" />
+                                <img v-if="pictogram.image_path" :src="pictogram.image_path" @error="pictogram.image_path = null" :alt="pictogram.name" loading="lazy" class="w-16 h-16 sm:w-20 sm:h-20 object-contain mb-3 rounded pointer-events-none drop-shadow-sm" />
                                 <div v-else class="text-5xl sm:text-6xl mb-3 pointer-events-none">🖼️</div>
 
                                 <span class="text-sm sm:text-base font-bold text-gray-800 text-center leading-tight truncate w-full px-2 pointer-events-none">{{ pictogram.name }}</span>
