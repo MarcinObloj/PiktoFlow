@@ -100,26 +100,71 @@ const isMenuOpen = ref(false);
             <div class="max-w-7xl mx-auto px-6">
                 <div class="text-center mb-12 sm:mb-16">
                     <h2 class="text-3xl sm:text-4xl font-black mb-4">Wszystko, czego potrzebujesz</h2>
-                    <p class="text-gray-600 max-w-2xl mx-auto text-base sm:text-lg">Zaprojektowane z myślą o terapeutach, rodzicach i przede wszystkim – użytkownikach AAC.</p>
+                    <p class="text-gray-600 max-w-2xl mx-auto text-base sm:text-lg">Kompleksowe rozwiązanie zaprojektowane z myślą o terapeutach, rodzicach i przede wszystkim – użytkownikach AAC.</p>
                 </div>
 
-                <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                    <!-- 1 -->
                     <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition group">
                         <div class="text-4xl sm:text-5xl mb-4 sm:mb-6 group-hover:scale-110 transition duration-300">🗣️</div>
                         <h3 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Budowanie Zdań</h3>
-                        <p class="text-gray-600 leading-relaxed text-sm sm:text-base">Pozwól dziecku łączyć piktogramy w pełne myśli. Syntezator mowy odczyta całe zdanie jednym kliknięciem.</p>
+                        <p class="text-gray-600 leading-relaxed text-sm sm:text-base">Pozwól dziecku łączyć piktogramy w pełne myśli. Intuicyjny interfejs umożliwia szybką komunikację.</p>
                     </div>
 
+                    <!-- 2 -->
                     <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition group">
                         <div class="text-4xl sm:text-5xl mb-4 sm:mb-6 group-hover:scale-110 transition duration-300">🖼️</div>
                         <h3 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Baza ARASAAC</h3>
-                        <p class="text-gray-600 leading-relaxed text-sm sm:text-base">Automatyczny dostęp do tysięcy ustandaryzowanych piktogramów medycznych. Dodawaj też własne zdjęcia.</p>
+                        <p class="text-gray-600 leading-relaxed text-sm sm:text-base">Zintegrowany dostęp do tysięcy ustandaryzowanych piktogramów z możliwością wyszukiwania i dodawania własnych obrazów.</p>
                     </div>
 
+                    <!-- 3 -->
+                    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition group">
+                        <div class="text-4xl sm:text-5xl mb-4 sm:mb-6 group-hover:scale-110 transition duration-300">🔊</div>
+                        <h3 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Syntezator Mowy (TTS)</h3>
+                        <p class="text-gray-600 leading-relaxed text-sm sm:text-base">Aplikacja odczytuje całe zdania oraz pojedyncze piktogramy na głos, nadając użytkownikom własne brzmienie.</p>
+                    </div>
+
+                    <!-- 4 -->
                     <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition group">
                         <div class="text-4xl sm:text-5xl mb-4 sm:mb-6 group-hover:scale-110 transition duration-300">👶</div>
-                        <h3 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Profile Dzieci</h3>
-                        <p class="text-gray-600 leading-relaxed text-sm sm:text-base">Zarządzaj wieloma profilami. Każde dziecko może mieć własną, spersonalizowaną tablicę słów.</p>
+                        <h3 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Wiele Profili Dzieci</h3>
+                        <p class="text-gray-600 leading-relaxed text-sm sm:text-base">Zarządzaj kontami podopiecznych w jednym miejscu. Każde dziecko może mieć własną, spersonalizowaną tablicę.</p>
+                    </div>
+
+                    <!-- 5 -->
+                    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition group">
+                        <div class="text-4xl sm:text-5xl mb-4 sm:mb-6 group-hover:scale-110 transition duration-300">📅</div>
+                        <h3 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Plany Dnia</h3>
+                        <p class="text-gray-600 leading-relaxed text-sm sm:text-base">Twórz przejrzyste, wizualne harmonogramy. Piktogramy pomagają dziecku zrozumieć strukturę i zadania na dany dzień.</p>
+                    </div>
+
+                    <!-- 6 -->
+                    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition group">
+                        <div class="text-4xl sm:text-5xl mb-4 sm:mb-6 group-hover:scale-110 transition duration-300">👁️</div>
+                        <h3 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Tryb CVI (Wysoki Kontrast)</h3>
+                        <p class="text-gray-600 leading-relaxed text-sm sm:text-base">Specjalny tryb wyświetlania ułatwiający korzystanie z aplikacji dzieciom z zaburzeniami widzenia korowego.</p>
+                    </div>
+
+                    <!-- 7 -->
+                    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition group">
+                        <div class="text-4xl sm:text-5xl mb-4 sm:mb-6 group-hover:scale-110 transition duration-300">📈</div>
+                        <h3 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Analityka i Postępy</h3>
+                        <p class="text-gray-600 leading-relaxed text-sm sm:text-base">Szczegółowe logi budowanych zdań i używanych piktogramów pozwalają rodzicom i terapeutom śledzić rozwój.</p>
+                    </div>
+
+                    <!-- 8 -->
+                    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition group">
+                        <div class="text-4xl sm:text-5xl mb-4 sm:mb-6 group-hover:scale-110 transition duration-300">🎮</div>
+                        <h3 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Moduł Edukacyjny (Quizy)</h3>
+                        <p class="text-gray-600 leading-relaxed text-sm sm:text-base">Interaktywne gry zachęcające do nauki nowych pojęć. Monitoruj wyniki quizów w panelu postępów dziecka.</p>
+                    </div>
+
+                    <!-- 9 -->
+                    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition group">
+                        <div class="text-4xl sm:text-5xl mb-4 sm:mb-6 group-hover:scale-110 transition duration-300">🖨️</div>
+                        <h3 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Eksport Tablic do PDF</h3>
+                        <p class="text-gray-600 leading-relaxed text-sm sm:text-base">Brak dostępu do tabletu? Jednym kliknięciem wygeneruj gotowy do druku PDF z tablicą komunikacyjną.</p>
                     </div>
                 </div>
             </div>
