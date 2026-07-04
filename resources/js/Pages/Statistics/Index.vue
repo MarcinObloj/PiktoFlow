@@ -137,9 +137,9 @@ const getLineData = (labels = [], historyData = [], predictionData = []) => {
                     </div>
                     <div class="lg:col-span-2 h-64 flex flex-col">
                         <h4 class="text-center font-bold mb-2">Trend MLU i Predykcja</h4>
-                        <div class="flex-1 relative">
-                            <Line v-if="stat.mluData.length" :data="getLineData(stat.mluLabels, stat.mluData, stat.predictionData)" :options="{responsive:true, maintainAspectRatio:false}" />
-                            <div v-else class="absolute inset-0 flex items-center justify-center text-gray-400 font-medium bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                        <div class="w-full h-full flex-1 min-h-[12rem]">
+                            <Line v-if="stat.mluData.length > 0" :data="getLineData(stat.mluLabels, stat.mluData, stat.predictionData)" :options="{responsive:true, maintainAspectRatio:false}" />
+                            <div v-else class="w-full h-full flex items-center justify-center text-gray-400 font-medium bg-gray-50 rounded-xl border border-dashed border-gray-200">
                                 Brak historii zbudowanych zdań (MLU) do analizy.
                             </div>
                         </div>
