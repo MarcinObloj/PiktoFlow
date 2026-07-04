@@ -9,11 +9,36 @@ export function useTTS() {
 
     const loadVoices = () => {
         const availableVoices = window.speechSynthesis.getVoices();
-        voices.value = availableVoices;
 
-        if (!selectedVoice.value && availableVoices.length > 0) {
-            const polishVoice = availableVoices.find(v => v.lang.startsWith('pl'));
-            selectedVoice.value = polishVoice || availableVoices[0];
+        // Wyciągamy tylko polskie głosy (lub zostawiamy wszystkie, jeśli brak polskich)
+        let filtered = availableVoices.filter(v => v.lang.startsWith('pl'));
+        if (filtered.length === 0) {
+            filtered = availableVoices;
+        }
+
+        voices.value = filtered.map(v => {
+            let friendlyName = v.name;
+            if (friendlyName.includes('Google polski')) friendlyName = 'Polski (Google)';
+            else if (friendlyName.includes('Paulina')) friendlyName = 'Paulina (Microsoft)';
+            else if (friendlyName.includes('Adam')) friendlyName = 'Adam (Microsoft)';
+            else if (friendlyName.includes('Zira')) friendlyName = 'Zira (Microsoft - Angielski)';
+            else if (friendlyName.includes('David')) friendlyName = 'David (Microsoft - Angielski)';
+            else if (friendlyName.includes('Mark')) friendlyName = 'Mark (Microsoft - Angielski)';
+            else {
+                // Skracamy przydługie nazwy usuwając wtrącenia o języku
+                friendlyName = friendlyName.replace(/ - [a-zA-Z\s]+ \([a-zA-Z-]+\)/, '').trim();
+            }
+
+            return {
+                original: v,
+                voiceURI: v.voiceURI,
+                name: v.name,
+                friendlyName: friendlyName
+            };
+        });
+
+        if (!selectedVoice.value && voices.value.length > 0) {
+            selectedVoice.value = voices.value[0];
         }
     };
 
@@ -32,15 +57,21 @@ export function useTTS() {
         window.speechSynthesis.cancel();
 
         const utterance = new SpeechSynthesisUtterance(text);
-        const voices = window.speechSynthesis.getVoices();
-
+        
         if (options.voice) {
-            const selectedVoice = voices.find(v => v.name === options.voice);
-            if (selectedVoice) {
-                utterance.voice = selectedVoice;
+            // voices.value is our mapped array, we need the original voice
+            const selectedVoiceObj = voices.value.find(v => v.name === options.voice);
+            if (selectedVoiceObj) {
+                utterance.voice = selectedVoiceObj.original;
+            } else {
+                // Fallback to native find
+                const nativeVoices = window.speechSynthesis.getVoices();
+                const fallbackVoice = nativeVoices.find(v => v.name === options.voice);
+                if (fallbackVoice) utterance.voice = fallbackVoice;
             }
         } else {
-            const plVoice = voices.find(v => v.lang.includes('pl'));
+            const nativeVoices = window.speechSynthesis.getVoices();
+            const plVoice = nativeVoices.find(v => v.lang.includes('pl'));
             if (plVoice) utterance.voice = plVoice;
         }
 

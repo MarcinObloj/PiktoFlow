@@ -73,7 +73,7 @@ const submit = () => {
                                     <select v-model="form.tts_voice" class="block w-full rounded-xl border-blue-300 shadow-sm focus:border-blue-500 py-2 px-3 text-sm">
                                         <option value="">Domyślny systemowy</option>
                                         <option v-for="voice in voices" :key="voice.voiceURI" :value="voice.name">
-                                            {{ voice.name }} ({{ voice.lang }})
+                                            {{ voice.friendlyName }}
                                         </option>
                                     </select>
                                 </div>
