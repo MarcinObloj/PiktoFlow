@@ -11,9 +11,20 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 use App\Models\Category;
+use App\Services\PredictionService;
+use App\Services\AnalyticsService;
 
 class ChildController extends Controller
 {
+    protected PredictionService $predictionService;
+    protected AnalyticsService $analyticsService;
+
+    public function __construct(PredictionService $predictionService, AnalyticsService $analyticsService)
+    {
+        $this->predictionService = $predictionService;
+        $this->analyticsService = $analyticsService;
+    }
+
     public function index()
     {
         $children = auth()->user()->children;
@@ -312,118 +323,22 @@ class ChildController extends Controller
         }
 
         $lastId = $request->query('last_pictogram_id');
+        $pictograms = $this->predictionService->predictNextPictograms($child, $lastId ? (int) $lastId : null);
 
-        if (!$lastId) {
-            $popularIds = ClickLog::where('child_id', $child->id)
-                ->select('pictogram_id', DB::raw('count(*) as total'))
-                ->groupBy('pictogram_id')
-                ->orderByDesc('total')
-                ->limit(4)
-                ->pluck('pictogram_id');
-
-            $pictograms = Pictogram::whereIn('id', $popularIds)->get();
-            return response()->json($pictograms);
-        }
-
-        $logs = ClickLog::where('child_id', $child->id)
-            ->orderBy('created_at', 'desc')
-            ->limit(1000)
-            ->get();
-
-        $transitions = [];
-
-        for ($i = count($logs) - 1; $i > 0; $i--) {
-            $current = $logs[$i];
-            $next = $logs[$i - 1];
-
-            if ($current->created_at->diffInSeconds($next->created_at) < 120) {
-                if ($current->pictogram_id == $lastId) {
-                    $nextId = $next->pictogram_id;
-                    $transitions[$nextId] = ($transitions[$nextId] ?? 0) + 1;
-                }
-            }
-        }
-
-        arsort($transitions);
-        $predictedIds = array_slice(array_keys($transitions), 0, 4);
-
-        if (empty($predictedIds)) {
-            $popularIds = ClickLog::where('child_id', $child->id)
-                ->select('pictogram_id', DB::raw('count(*) as total'))
-                ->groupBy('pictogram_id')
-                ->orderByDesc('total')
-                ->limit(4)
-                ->pluck('pictogram_id');
-            $predictedIds = $popularIds->toArray();
-        }
-
-        $pictograms = Pictogram::whereIn('id', $predictedIds)->get();
-        $sortedPictograms = $pictograms->sortBy(function($model) use ($predictedIds) {
-            return array_search($model->id, $predictedIds);
-        })->values();
-
-        return response()->json($sortedPictograms);
+        return response()->json($pictograms);
     }
 
     public function statistics()
     {
         $children = auth()->user()->children;
-        $statistics = [];
-
-        foreach ($children as $child) {
-            $mostUsed = ClickLog::where('child_id', $child->id)
-                ->join('pictograms', 'click_logs.pictogram_id', '=', 'pictograms.id')
-                ->select('pictograms.name', DB::raw('count(*) as total'))
-                ->groupBy('pictograms.name')
-                ->orderBy('total', 'desc')
-                ->limit(5)
-                ->get();
-
-            $mluData = \App\Models\SentenceLog::where('child_id', $child->id)
-                ->select(DB::raw('DATE(created_at) as date'), DB::raw('AVG(length) as mlu'))
-                ->groupBy('date')->orderBy('date', 'asc')->get();
-
-            $historyArray = $mluData->pluck('mlu')->map(fn($val) => (float)$val)->toArray();
-            $trend = $this->calculateTrend($historyArray);
-
-            $predictionData = [];
-            $lastIndex = count($historyArray);
-            if ($lastIndex >= 2) {
-                for ($i = 1; $i <= 30; $i++) {
-                    $val = $trend['a'] * ($lastIndex + $i) + $trend['b'];
-                    $predictionData[] = round(max(1, $val), 2);
-                }
-            }
-
-            $statistics[] = [
-                'child' => $child,
-                'chartLabels' => $mostUsed->pluck('name'),
-                'chartData' => $mostUsed->pluck('total'),
-                'mluLabels' => $mluData->map(fn($log) => $log->date),
-                'mluData' => $mluData->map(fn($log) => round($log->mlu, 2)),
-                'predictionData' => $predictionData,
-                'growthRate' => round($trend['a'] * 100, 1)
-            ];
-        }
+        
+        $statistics = $this->analyticsService->generateStatistics($children);
 
         return Inertia::render('Statistics/Index', [
             'statistics' => $statistics
         ]);
     }
 
-    private function calculateTrend($data) {
-        $n = count($data);
-        if ($n < 2) return ['a' => 0, 'b' => 0];
-        $sumX = 0; $sumY = 0; $sumXY = 0; $sumX2 = 0;
-        foreach ($data as $x => $y) {
-            $sumX += $x; $sumY += $y;
-            $sumXY += ($x * $y); $sumX2 += ($x * $x);
-        }
-        $denominator = ($n * $sumX2 - $sumX * $sumX);
-        $a = $denominator == 0 ? 0 : ($n * $sumXY - $sumX * $sumY) / $denominator;
-        $b = ($sumY - $a * $sumX) / $n;
-        return ['a' => $a, 'b' => $b];
-    }
 
     public function update(Request $request, Child $child)
     {

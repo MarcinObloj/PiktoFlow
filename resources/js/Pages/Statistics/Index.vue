@@ -35,10 +35,18 @@ const dynamicConclusions = computed(() => {
         differenceText = `o ${diff} punktów proc. wyższe tempo rozwoju`;
     }
 
+    if (!bestChild.isSignificant) {
+        return {
+            title: "Ostrzeżenie: Dane nieistotne statystycznie",
+            text1: `Zestawienie wykazuje najwyższe tempo rozwoju u dziecka "${bestChild.child.name}" (+${bestChild.growthRate}%/dzień), ale model regresji wykazuje niską determinację (R² = ${bestChild.rSquared}).`,
+            text2: `Zaleca się zebranie większej ilości danych z logów komunikacji, zanim wyciągnięte zostaną stanowcze wnioski pedagogiczne. Aktualne predykcje mogą być zaburzone przez wariancję (szum danych).`
+        };
+    }
+
     return {
         title: "Wnioski z analizy algorytmicznej (Rozwój MLU)",
-        text1: `Zestawienie porównawcze wykazuje najwyższą skuteczność w budowaniu komunikacji u dziecka "${bestChild.child.name}". Dzienny przyrost wskaźnika MLU na poziomie +${bestChild.growthRate}% oznacza ${differenceText} w zestawieniu z profilem "${worstChild.child.name}". Taka asymetria sugeruje, że obecny układ tablic wyjątkowo dobrze odpowiada na potrzeby tego użytkownika.`,
-        text2: `Krzywa regresji dla profilu "${bestChild.child.name}" potwierdza stabilność trendu wzrostowego. Rekomenduje się przeanalizowanie najczęściej wybieranych przez niego piktogramów i próbę zaimplementowania podobnej strategii modelowania u pozostałych dzieci w celu stymulacji ich rozwoju językowego.`
+        text1: `Zestawienie porównawcze wykazuje najwyższą skuteczność w budowaniu komunikacji u dziecka "${bestChild.child.name}". Dzienny przyrost wskaźnika MLU na poziomie +${bestChild.growthRate}% (R² = ${bestChild.rSquared}) oznacza ${differenceText} w zestawieniu z profilem "${worstChild.child.name}". Taka asymetria sugeruje, że obecny układ tablic wyjątkowo dobrze odpowiada na potrzeby tego użytkownika.`,
+        text2: `Krzywa regresji dla profilu "${bestChild.child.name}" potwierdza istotność statystyczną trendu wzrostowego. Rekomenduje się przeanalizowanie najczęściej wybieranych przez niego piktogramów i próbę zaimplementowania podobnej strategii modelowania u pozostałych dzieci w celu stymulacji ich rozwoju językowego.`
     };
 });
 
@@ -109,10 +117,15 @@ const getLineData = (labels = [], historyData = [], predictionData = []) => {
             </div>
 
             <div v-for="stat in statistics" :key="stat.child.id" class="bg-white rounded-3xl shadow-lg border p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-black">{{ stat.child.name }}</h3>
-                    <div class="text-sm font-bold bg-gray-100 px-4 py-2 rounded-full">
-                        Tempo wzrostu: <span class="text-green-600">+{{ stat.growthRate }}% / dzień</span>
+                <div class="flex flex-col items-end mb-6">
+                    <div class="flex items-center gap-4">
+                        <h3 class="text-xl font-black">{{ stat.child.name }}</h3>
+                        <div class="text-sm font-bold bg-gray-100 px-4 py-2 rounded-full">
+                            Wzrost: <span :class="stat.growthRate > 0 ? 'text-green-600' : 'text-gray-600'">{{ stat.growthRate > 0 ? '+' : '' }}{{ stat.growthRate }}% / dzień</span>
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-500 font-medium mt-1">
+                        Współczynnik R² (istotność): <strong :class="stat.rSquared > 0.5 ? 'text-green-500' : 'text-red-400'">{{ stat.rSquared }}</strong>
                     </div>
                 </div>
 

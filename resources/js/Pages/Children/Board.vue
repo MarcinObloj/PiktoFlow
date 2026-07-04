@@ -87,8 +87,14 @@ let leaveTimeout = null;
 const toggleEyetracker = () => {
     if (!isEyetrackerActive.value) {
         window.webgazer.applyKalmanFilter(true);
+        let lastUpdate = 0;
+        
         window.webgazer.setGazeListener((data, elapsedTime) => {
             if (data == null || isCalibrating.value) return;
+
+            // Optymalizacja: Throttling do ~20 FPS (50ms), by nie obciążać Vue i DOM
+            if (elapsedTime - lastUpdate < 50) return;
+            lastUpdate = elapsedTime;
 
             gazeHistory.push({ x: data.x, y: data.y });
             if (gazeHistory.length > historyLength) gazeHistory.shift();
