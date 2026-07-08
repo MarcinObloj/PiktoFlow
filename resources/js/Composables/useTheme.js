@@ -10,14 +10,14 @@ const apply = (dark) => {
 };
 
 /**
- * Reads the saved preference (or the OS setting) and applies it.
- * Safe to call early (e.g. from app.js) to avoid a flash of the wrong theme.
+ * Applies the saved preference. Defaults to LIGHT so the theme is predictable
+ * and never surprises the user based on their OS setting — dark mode is opt-in
+ * via the toggle in the top navigation bar.
  */
 export function initTheme() {
     if (typeof window === 'undefined') return;
     const stored = localStorage.getItem(STORAGE_KEY);
-    const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
-    apply(stored ? stored === 'dark' : !!prefersDark);
+    apply(stored === 'dark');
 }
 
 export function useTheme() {

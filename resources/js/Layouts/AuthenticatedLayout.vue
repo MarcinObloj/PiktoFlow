@@ -63,7 +63,7 @@ watch(showingNavigationDropdown, (value) => {
                             </button>
 
                             <div class="ms-1 relative">
-                                <Dropdown align="right" width="48">
+                                <Dropdown align="right" width="48" content-classes="py-1 bg-white dark:bg-surface-dark-muted">
                                     <template #trigger>
                                         <span class="inline-flex rounded-md">
                                             <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-200 dark:border-gray-700 text-sm leading-4 font-bold rounded-xl text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none transition ease-in-out duration-150 shadow-sm">

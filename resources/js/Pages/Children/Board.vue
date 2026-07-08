@@ -1,6 +1,6 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
-import { ref, nextTick, computed, onMounted, watch } from 'vue';
+import { ref, nextTick, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import draggable from 'vuedraggable';
 import axios from 'axios';
 import confetti from 'canvas-confetti';
@@ -42,6 +42,22 @@ const fetchPredictions = async () => {
 watch(sentence, () => {
     fetchPredictions();
 }, { deep: true });
+
+// The child board has its own theming (standard / CVI) and must NOT inherit the
+// caregiver's dark-mode preference. Suspend the global `dark` class while mounted
+// so the board and its exit modal stay visually consistent, then restore on leave.
+let hadDarkClass = false;
+onMounted(() => {
+    if (typeof document !== 'undefined') {
+        hadDarkClass = document.documentElement.classList.contains('dark');
+        document.documentElement.classList.remove('dark');
+    }
+});
+onBeforeUnmount(() => {
+    if (hadDarkClass && typeof document !== 'undefined') {
+        document.documentElement.classList.add('dark');
+    }
+});
 
 onMounted(() => {
     rate.value = props.child.tts_rate || 0.9;
