@@ -23,17 +23,17 @@ const updatePin = () => {
 <template>
     <section>
         <header>
-            <h2 class="text-xl font-bold text-gray-900">Blokada rodzicielska (PIN)</h2>
-            <p class="mt-1 text-sm text-gray-600">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Blokada rodzicielska (PIN)</h2>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                 4-cyfrowy kod zabezpieczający wyjście dziecka z tablicy komunikacyjnej.
-                <span v-if="hasBoardPin" class="font-bold text-green-600">Własny PIN jest ustawiony.</span>
-                <span v-else class="font-bold text-amber-600">Używany jest domyślny kod 1234 — ustaw własny.</span>
+                <span v-if="hasBoardPin" class="font-bold text-green-600 dark:text-green-400">Własny PIN jest ustawiony.</span>
+                <span v-else class="font-bold text-amber-600 dark:text-amber-400">Używany jest domyślny kod 1234 — ustaw własny.</span>
             </p>
         </header>
 
         <form @submit.prevent="updatePin" class="mt-6 space-y-6">
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Nowy kod PIN</label>
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-1">Nowy kod PIN</label>
                 <input
                     v-model="form.board_pin"
                     type="password"
@@ -41,7 +41,7 @@ const updatePin = () => {
                     maxlength="4"
                     autocomplete="new-password"
                     placeholder="np. 4821"
-                    class="w-40 text-center text-2xl tracking-[0.5em] px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all bg-gray-50 focus:bg-white"
+                    class="w-40 text-center text-2xl tracking-[0.5em] px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all bg-gray-50 focus:bg-white"
                 />
                 <div v-if="form.errors.board_pin" class="text-red-500 text-sm mt-1">{{ form.errors.board_pin }}</div>
             </div>

@@ -16,6 +16,8 @@ class Child extends Model
         'hobbies',
         'avatar_path',
         'is_cvi_mode',
+        'cvi_accent_color',
+        'cvi_grid_density',
         'daily_plan',
         'tts_voice',
         'tts_rate',

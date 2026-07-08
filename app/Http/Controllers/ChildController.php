@@ -379,6 +379,8 @@ class ChildController extends Controller
             'name' => 'required|string|max:255',
             'avatar' => 'nullable|image|max:2048',
             'is_cvi_mode' => 'required|boolean',
+            'cvi_accent_color' => 'nullable|string|max:7',
+            'cvi_grid_density' => 'nullable|in:compact,normal,spacious',
             'tts_voice' => 'nullable|string|max:255',
             'tts_rate' => 'nullable|numeric|min:0.1|max:2',
             'tts_pitch' => 'nullable|numeric|min:0|max:2',
@@ -388,6 +390,8 @@ class ChildController extends Controller
         $data = [
             'name' => $request->name,
             'is_cvi_mode' => $request->is_cvi_mode,
+            'cvi_accent_color' => $request->cvi_accent_color ?: '#facc15',
+            'cvi_grid_density' => $request->cvi_grid_density ?: 'normal',
             'tts_voice' => $request->tts_voice,
             'tts_rate' => $request->tts_rate,
             'tts_pitch' => $request->tts_pitch,

@@ -1,6 +1,7 @@
 <script setup>
 import { useForm } from '@inertiajs/vue3';
-import { nextTick, ref } from 'vue';
+import { ref } from 'vue';
+import BaseModal from '@/Components/BaseModal.vue';
 
 const confirmingUserDeletion = ref(false);
 const passwordInput = ref(null);
@@ -27,8 +28,8 @@ const deleteUser = () => {
 <template>
     <section class="space-y-6">
         <header>
-            <h2 class="text-xl font-bold text-red-700">Usuń konto</h2>
-            <p class="mt-1 text-sm text-red-600 italic font-medium">Uwaga: Wszystkie dane dzieci i piktogramy zostaną bezpowrotnie usunięte.</p>
+            <h2 class="text-xl font-bold text-red-700 dark:text-red-400">Usuń konto</h2>
+            <p class="mt-1 text-sm text-red-600 dark:text-red-400/80 italic font-medium">Uwaga: Wszystkie dane dzieci i piktogramy zostaną bezpowrotnie usunięte.</p>
         </header>
 
         <button
@@ -38,27 +39,27 @@ const deleteUser = () => {
             Chcę usunąć konto
         </button>
 
-        <div v-if="confirmingUserDeletion" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-            <div class="bg-white p-8 rounded-3xl max-w-md w-full shadow-2xl">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4 text-center">Jesteś pewien? 🛑</h2>
-                <p class="text-gray-600 mb-6 text-center italic">Proszę wpisz hasło, aby potwierdzić trwałe usunięcie konta.</p>
+        <BaseModal :show="confirmingUserDeletion" max-width="md" @close="closeModal">
+            <div class="p-8">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">Jesteś pewien?</h2>
+                <p class="text-gray-600 dark:text-gray-300 mb-6 text-center italic">Proszę wpisz hasło, aby potwierdzić trwałe usunięcie konta.</p>
 
                 <input
                     ref="passwordInput"
                     v-model="form.password"
                     type="password"
                     placeholder="Twoje hasło"
-                    class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none mb-4 bg-gray-50"
+                    class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none mb-4 bg-gray-50"
                     @keyup.enter="deleteUser"
                 />
 
                 <div v-if="form.errors.password" class="text-red-500 text-sm mb-4">{{ form.errors.password }}</div>
 
                 <div class="flex justify-center gap-3">
-                    <button @click="closeModal" class="px-6 py-2 bg-gray-200 rounded-xl font-bold text-gray-700">Anuluj</button>
-                    <button @click="deleteUser" :disabled="form.processing" class="px-6 py-2 bg-red-600 rounded-xl font-bold text-white shadow hover:bg-red-700">USUŃ KONTO</button>
+                    <button @click="closeModal" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 dark:text-gray-100 rounded-xl font-bold text-gray-700">Anuluj</button>
+                    <button @click="deleteUser" :disabled="form.processing" class="px-6 py-2 bg-red-600 rounded-xl font-bold text-white shadow hover:bg-red-700 disabled:opacity-50">USUŃ KONTO</button>
                 </div>
             </div>
-        </div>
+        </BaseModal>
     </section>
 </template>

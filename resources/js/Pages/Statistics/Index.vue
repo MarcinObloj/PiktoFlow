@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import Icon from '@/Components/Icon.vue';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title, Filler } from 'chart.js';
 import { Doughnut, Line } from 'vue-chartjs';
 
@@ -112,30 +113,32 @@ const getLineData = (labels = [], historyData = [], predictionData = []) => {
     <Head title="Analiza Badawcza" />
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-bold text-2xl text-gray-800">📊 Panel Analizy Porównawczej</h2>
+            <h2 class="font-bold text-2xl text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                <Icon name="chart" :size="26" /> Panel Analizy Porównawczej
+            </h2>
         </template>
 
         <div class="py-8 max-w-7xl mx-auto px-4 space-y-8">
-            <div class="bg-blue-900 text-white p-8 rounded-3xl shadow-xl">
+            <div class="bg-primary-900 text-white p-8 rounded-card shadow-xl">
                 <div class="flex items-center gap-3 mb-4">
-                    <span class="text-3xl animate-pulse">🤖</span>
+                    <Icon name="sparkles" :size="28" class="text-primary-200" />
                     <h3 class="text-xl font-bold">{{ dynamicConclusions.title }}</h3>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 italic text-blue-100">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 italic text-primary-100">
                     <p>{{ dynamicConclusions.text1 }}</p>
                     <p>{{ dynamicConclusions.text2 }}</p>
                 </div>
             </div>
 
-            <div v-for="stat in statistics" :key="stat.child.id" class="bg-white rounded-3xl shadow-lg border p-6">
+            <div v-for="stat in statistics" :key="stat.child.id" class="bg-white dark:bg-surface-dark-muted rounded-card shadow-lg border border-gray-100 dark:border-gray-700 p-6">
                 <div class="flex flex-col items-end mb-6">
                     <div class="flex items-center gap-4">
-                        <h3 class="text-xl font-black">{{ stat.child.name }}</h3>
-                        <div class="text-sm font-bold bg-gray-100 px-4 py-2 rounded-full">
-                            Wzrost: <span :class="stat.growthRate > 0 ? 'text-green-600' : 'text-gray-600'">{{ stat.growthRate > 0 ? '+' : '' }}{{ stat.growthRate }}% / dzień</span>
+                        <h3 class="text-xl font-black text-gray-900 dark:text-white">{{ stat.child.name }}</h3>
+                        <div class="text-sm font-bold bg-gray-100 dark:bg-gray-700 dark:text-gray-100 px-4 py-2 rounded-full">
+                            Wzrost: <span :class="stat.growthRate > 0 ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-300'">{{ stat.growthRate > 0 ? '+' : '' }}{{ stat.growthRate }}% / dzień</span>
                         </div>
                     </div>
-                    <div class="text-xs text-gray-500 font-medium mt-1">
+                    <div class="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">
                         Dopasowanie modelu (R²): <strong :class="stat.rSquared > 0.5 ? 'text-green-500' : 'text-red-400'">{{ stat.rSquared }}</strong>
                         <span class="text-gray-400"> · {{ stat.dataPoints }} dni z danymi</span>
                     </div>
@@ -143,19 +146,19 @@ const getLineData = (labels = [], historyData = [], predictionData = []) => {
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="h-64 flex flex-col">
-                        <h4 class="text-center font-bold mb-2">Najczęściej używane</h4>
+                        <h4 class="text-center font-bold mb-2 text-gray-700 dark:text-gray-200">Najczęściej używane</h4>
                         <div class="w-full h-full flex-1 min-h-[12rem] relative">
                             <Doughnut v-if="stat.chartData?.length > 0" :data="getDoughnutData(stat.chartLabels, stat.chartData)" :options="{responsive:true, maintainAspectRatio:false}" />
-                            <div v-else class="w-full h-full flex items-center justify-center text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                            <div v-else class="w-full h-full flex items-center justify-center text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                                 Brak danych kliknięć
                             </div>
                         </div>
                     </div>
                     <div class="lg:col-span-2 h-64 flex flex-col">
-                        <h4 class="text-center font-bold mb-2">Trend MLU i Predykcja</h4>
+                        <h4 class="text-center font-bold mb-2 text-gray-700 dark:text-gray-200">Trend MLU i Predykcja</h4>
                         <div class="w-full h-full flex-1 min-h-[12rem] relative">
                             <Line v-if="stat.mluData?.length > 0" :data="getLineData(stat.mluLabels, stat.mluData, stat.predictionData)" :options="{responsive:true, maintainAspectRatio:false}" />
-                            <div v-else class="w-full h-full flex items-center justify-center text-gray-400 font-medium bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                            <div v-else class="w-full h-full flex items-center justify-center text-gray-400 font-medium bg-gray-50 dark:bg-gray-800 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                                 Brak historii zbudowanych zdań (MLU) do analizy.
                             </div>
                         </div>

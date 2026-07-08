@@ -17,29 +17,29 @@ const form = useForm({
 <template>
     <section>
         <header>
-            <h2 class="text-xl font-bold text-gray-900">Informacje o profilu</h2>
-            <p class="mt-1 text-sm text-gray-600">Zaktualizuj swoje imię oraz adres e-mail.</p>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Informacje o profilu</h2>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Zaktualizuj swoje imię oraz adres e-mail.</p>
         </header>
 
         <form @submit.prevent="form.patch(route('profile.update'))" class="mt-6 space-y-6">
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Imię i Nazwisko</label>
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-1">Imię i Nazwisko</label>
                 <input
                     type="text"
                     v-model="form.name"
                     required
-                    class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all bg-gray-50 focus:bg-white"
+                    class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all bg-gray-50 focus:bg-white"
                 />
                 <div v-if="form.errors.name" class="text-red-500 text-sm mt-1">{{ form.errors.name }}</div>
             </div>
 
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Adres Email</label>
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-1">Adres Email</label>
                 <input
                     type="email"
                     v-model="form.email"
                     required
-                    class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all bg-gray-50 focus:bg-white"
+                    class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all bg-gray-50 focus:bg-white"
                 />
                 <div v-if="form.errors.email" class="text-red-500 text-sm mt-1">{{ form.errors.email }}</div>
             </div>
@@ -48,7 +48,7 @@ const form = useForm({
                 <button
                     type="submit"
                     :disabled="form.processing"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-xl shadow transition disabled:opacity-50"
+                    class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-6 rounded-xl shadow transition disabled:opacity-50"
                 >
                     Zapisz dane
                 </button>
