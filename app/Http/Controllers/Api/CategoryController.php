@@ -1,13 +1,19 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
+    public function index(Request $request)
+    {
+        return Category::where('user_id', $request->user()?->id)->get();
+    }
+
     public function create()
     {
         return Inertia::render('Categories/Create');

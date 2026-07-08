@@ -77,7 +77,7 @@ watch(showingNavigationDropdown, (value) => {
                                         <div class="p-2">
                                             <DropdownLink :href="route('profile.edit')" class="rounded-lg font-medium"> Profil Opiekuna </DropdownLink>
                                             <div class="border-t border-gray-100 dark:border-gray-700 my-1"></div>
-                                            <DropdownLink :href="route('logout')" method="post" as="button" class="rounded-lg font-bold text-red-600 hover:bg-red-50">
+                                            <DropdownLink :href="route('logout')" method="post" as="button" class="rounded-lg font-bold !text-red-600 dark:!text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30">
                                                 Wyloguj się
                                             </DropdownLink>
                                         </div>
