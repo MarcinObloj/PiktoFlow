@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import DeleteUserForm from './Partials/DeleteUserForm.vue';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue';
+import UpdateBoardPinForm from './Partials/UpdateBoardPinForm.vue';
 import { Head } from '@inertiajs/vue3';
 
 defineProps({
@@ -11,6 +12,10 @@ defineProps({
     },
     status: {
         type: String,
+    },
+    hasBoardPin: {
+        type: Boolean,
+        default: false,
     },
 });
 </script>
@@ -40,6 +45,13 @@ defineProps({
                     <div class="absolute top-0 left-0 w-2 h-full bg-purple-500"></div>
                     <div class="max-w-xl">
                         <UpdatePasswordForm />
+                    </div>
+                </div>
+
+                <div class="p-6 sm:p-10 bg-white shadow-xl rounded-3xl border border-gray-100 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-2 h-full bg-amber-500"></div>
+                    <div class="max-w-xl">
+                        <UpdateBoardPinForm :has-board-pin="hasBoardPin" />
                     </div>
                 </div>
 

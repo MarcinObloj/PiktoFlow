@@ -17,11 +17,13 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'board_pin',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
+        'board_pin',
     ];
 
     public function children()
@@ -49,6 +51,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'board_pin' => 'hashed',
         ];
     }
 }

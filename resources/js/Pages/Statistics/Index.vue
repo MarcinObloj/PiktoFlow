@@ -16,8 +16,8 @@ const dynamicConclusions = computed(() => {
 
     if (!stats || stats.length < 2) {
         return {
-            title: "Oczekiwanie na dane analityczne...",
-            text1: "Zgromadź dane z co najmniej dwóch różnych profili dzieci, aby algorytm mógł wyznaczyć wariancję i wygenerować wnioski analityczne.",
+            title: "Oczekiwanie na dane analityczne",
+            text1: "Zgromadź dane z co najmniej dwóch profili dzieci, aby móc przygotować zestawienie porównawcze trendów komunikacji.",
             text2: ""
         };
     }
@@ -26,27 +26,38 @@ const dynamicConclusions = computed(() => {
     const bestChild = sortedStats[0];
     const worstChild = sortedStats[sortedStats.length - 1];
 
+    // Minimalna liczba dni z danymi, przy której trend jest choć trochę miarodajny.
+    const MIN_DATA_POINTS = 5;
+
+    if ((bestChild.dataPoints ?? 0) < MIN_DATA_POINTS) {
+        return {
+            title: "Za mało danych na wnioski",
+            text1: `Najbardziej aktywny profil ("${bestChild.child.name}") ma dane tylko z ${bestChild.dataPoints ?? 0} dni. To zbyt mało, aby mówić o trendzie rozwoju.`,
+            text2: `Aby wykresy i orientacyjna prognoza miały wartość, zaleca się regularne korzystanie z tablicy przez co najmniej ${MIN_DATA_POINTS} różnych dni.`
+        };
+    }
+
     let differenceText = "";
     if (worstChild.growthRate > 0) {
         let diff = Math.round((bestChild.growthRate / worstChild.growthRate) * 100 - 100);
-        differenceText = `wyższą o ${diff}% dynamikę postępów`;
+        differenceText = `wyższą o ${diff}% dynamikę`;
     } else {
         let diff = (bestChild.growthRate - worstChild.growthRate).toFixed(1);
-        differenceText = `o ${diff} punktów proc. wyższe tempo rozwoju`;
+        differenceText = `o ${diff} pkt proc. wyższe tempo`;
     }
 
-    if (!bestChild.isSignificant) {
+    if (!bestChild.isReliable) {
         return {
-            title: "Ostrzeżenie: Dane nieistotne statystycznie",
-            text1: `Zestawienie wykazuje najwyższe tempo rozwoju u dziecka "${bestChild.child.name}" (+${bestChild.growthRate}%/dzień), ale model regresji wykazuje niską determinację (R² = ${bestChild.rSquared}).`,
-            text2: `Zaleca się zebranie większej ilości danych z logów komunikacji, zanim wyciągnięte zostaną stanowcze wnioski pedagogiczne. Aktualne predykcje mogą być zaburzone przez wariancję (szum danych).`
+            title: "Trend orientacyjny — ograniczona wiarygodność",
+            text1: `Najwyższe tempo zmian obserwujemy u dziecka "${bestChild.child.name}" (+${bestChild.growthRate}%/dzień), jednak dopasowanie modelu liniowego jest słabe (R² = ${bestChild.rSquared}), więc wynik należy traktować wyłącznie poglądowo.`,
+            text2: `Przy tak niskim dopasowaniu prognoza może być zaburzona przez rozrzut danych. Zaleca się zebranie większej liczby obserwacji, zanim zostaną sformułowane wnioski terapeutyczne.`
         };
     }
 
     return {
-        title: "Wnioski z analizy algorytmicznej (Rozwój MLU)",
-        text1: `Zestawienie porównawcze wykazuje najwyższą skuteczność w budowaniu komunikacji u dziecka "${bestChild.child.name}". Dzienny przyrost wskaźnika MLU na poziomie +${bestChild.growthRate}% (R² = ${bestChild.rSquared}) oznacza ${differenceText} w zestawieniu z profilem "${worstChild.child.name}". Taka asymetria sugeruje, że obecny układ tablic wyjątkowo dobrze odpowiada na potrzeby tego użytkownika.`,
-        text2: `Krzywa regresji dla profilu "${bestChild.child.name}" potwierdza istotność statystyczną trendu wzrostowego. Rekomenduje się przeanalizowanie najczęściej wybieranych przez niego piktogramów i próbę zaimplementowania podobnej strategii modelowania u pozostałych dzieci w celu stymulacji ich rozwoju językowego.`
+        title: "Zestawienie porównawcze trendów MLU (interpretacja orientacyjna)",
+        text1: `W analizowanym okresie najszybszy wzrost średniej długości wypowiedzi (MLU) widać u dziecka "${bestChild.child.name}": +${bestChild.growthRate}%/dzień przy dopasowaniu modelu R² = ${bestChild.rSquared} (${bestChild.dataPoints} dni z danymi). To ${differenceText} w porównaniu z profilem "${worstChild.child.name}".`,
+        text2: `Uwaga metodologiczna: przedstawiony trend to prosta regresja liniowa na niewielkiej próbie i nie stanowi formalnego testu istotności. Warto zweryfikować, które piktogramy są wybierane najczęściej, i traktować wnioski jako punkt wyjścia do obserwacji, a nie rozstrzygnięcie.`
     };
 });
 
@@ -125,7 +136,8 @@ const getLineData = (labels = [], historyData = [], predictionData = []) => {
                         </div>
                     </div>
                     <div class="text-xs text-gray-500 font-medium mt-1">
-                        Współczynnik R² (istotność): <strong :class="stat.rSquared > 0.5 ? 'text-green-500' : 'text-red-400'">{{ stat.rSquared }}</strong>
+                        Dopasowanie modelu (R²): <strong :class="stat.rSquared > 0.5 ? 'text-green-500' : 'text-red-400'">{{ stat.rSquared }}</strong>
+                        <span class="text-gray-400"> · {{ stat.dataPoints }} dni z danymi</span>
                     </div>
                 </div>
 

@@ -16,7 +16,7 @@ const showExitModal = ref(false);
 const isTransitioning = ref(false);
 
 const currentSentence = ref([]);
-const finishedSentencesLengths = ref([]);
+const finishedSentences = ref([]);
 const correctIds = ref([]);
 
 const shuffle = (array) => [...array].sort(() => Math.random() - 0.5);
@@ -99,7 +99,7 @@ const checkSentence = () => {
 
     if (isCorrect) {
         score.value++;
-        finishedSentencesLengths.value.push(target.length);
+        finishedSentences.value.push(currentSentence.value.map(p => p.id));
         currentSentence.value.forEach(p => correctIds.value.push(p.id));
         speak("Świetne zdanie!", { voice: props.child?.tts_voice, rate: props.child?.tts_rate || 1 });
     } else {
@@ -126,7 +126,7 @@ const submitScore = () => {
         score: score.value,
         total: questions.value.length,
         clicked_ids: correctIds.value,
-        sentences: finishedSentencesLengths.value
+        sentences: finishedSentences.value
     });
 };
 

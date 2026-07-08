@@ -182,12 +182,21 @@ const handleDragEnd = (categoryId) => {
         .catch(err => console.error(err));
 };
 
+const ttsOptions = (extra = {}) => ({
+    voice: selectedVoice.value?.name,
+    rate: rate.value,
+    pitch: pitch.value,
+    volume: volume.value,
+    ...extra,
+});
+
 const playPictogram = (pictogram) => {
     if (pictogram.audio_path) {
         const audio = new Audio(pictogram.audio_path);
+        audio.volume = volume.value;
         audio.play();
     } else {
-        speak(pictogram.name);
+        speak(pictogram.name, ttsOptions());
     }
 };
 
@@ -231,12 +240,11 @@ const speakSentence = () => {
 
         if (p.audio_path) {
             const audio = new Audio(p.audio_path);
+            audio.volume = volume.value;
             audio.onended = () => playNext(index + 1);
             audio.play();
         } else {
-            speak(p.name, {
-                onEnd: () => playNext(index + 1)
-            });
+            speak(p.name, ttsOptions({ onEnd: () => playNext(index + 1) }));
         }
     };
     playNext(0);
@@ -262,15 +270,32 @@ const closePinModal = () => {
     pinError.value = '';
 };
 
-const verifyPin = () => {
-    if (pin.value === '1234') {
-        if (isEyetrackerActive.value) {
-            window.webgazer.end();
+const isVerifyingPin = ref(false);
+
+const verifyPin = async () => {
+    if (isVerifyingPin.value) return;
+    isVerifyingPin.value = true;
+    pinError.value = '';
+
+    try {
+        const { data } = await axios.post(route('children.verify-pin', props.child.id), {
+            pin: pin.value,
+        });
+
+        if (data.valid) {
+            if (isEyetrackerActive.value) {
+                window.webgazer.end();
+            }
+            router.get(route('children.index'));
+        } else {
+            pinError.value = 'Nieprawidłowy kod PIN.';
+            pin.value = '';
         }
-        router.get(route('children.index'));
-    } else {
-        pinError.value = 'Nieprawidłowy kod PIN.';
+    } catch (error) {
+        pinError.value = 'Nie udało się zweryfikować kodu. Spróbuj ponownie.';
         pin.value = '';
+    } finally {
+        isVerifyingPin.value = false;
     }
 };
 </script>
@@ -424,7 +449,7 @@ const verifyPin = () => {
                 <p v-if="pinError" class="text-red-500 text-sm mb-4">{{ pinError }}</p>
                 <div class="grid grid-cols-2 gap-4 w-full">
                     <button @click="closePinModal" :class="[isCvi ? 'bg-gray-900 text-yellow-500 border-2 border-yellow-500 hover:bg-gray-800' : 'bg-gray-200 text-gray-800 hover:bg-gray-300', 'py-4 font-bold rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gray-500 focus-visible:ring-offset-2']">Anuluj</button>
-                    <button @click="verifyPin" :class="[isCvi ? 'bg-yellow-400 text-black hover:bg-yellow-500' : 'bg-blue-600 text-white hover:bg-blue-700', 'py-4 font-bold rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500 focus-visible:ring-offset-2']">Odblokuj</button>
+                    <button @click="verifyPin" :disabled="isVerifyingPin" :class="[isCvi ? 'bg-yellow-400 text-black hover:bg-yellow-500' : 'bg-blue-600 text-white hover:bg-blue-700', 'py-4 font-bold rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-50']">Odblokuj</button>
                 </div>
             </div>
         </div>

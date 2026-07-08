@@ -10,6 +10,7 @@ class SentenceLog extends Model
         'child_id',
         'pictogram_ids',
         'length',
+        'source',
     ];
 
     protected $casts = [

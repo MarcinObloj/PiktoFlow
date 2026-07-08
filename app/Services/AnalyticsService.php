@@ -43,6 +43,10 @@ class AnalyticsService
                 'predictionData' => $predictionData,
                 'growthRate' => $trend['a'] !== null ? round($trend['a'] * 100, 1) : 0,
                 'rSquared' => $trend['r2'] !== null ? round($trend['r2'], 2) : 0,
+                'dataPoints' => $lastIndex,
+                // Orientational reliability flag: enough observations AND a decent fit.
+                // With so few data points this is a heuristic, not a formal significance test.
+                'isReliable' => $trend['r2'] !== null && $trend['r2'] > 0.5 && $lastIndex >= 5,
                 'isSignificant' => $trend['r2'] !== null && $trend['r2'] > 0.5 && $lastIndex >= 3
             ];
         }
@@ -63,7 +67,10 @@ class AnalyticsService
 
     private function getMluData(int $childId)
     {
+        // Only spontaneous board utterances count towards MLU.
+        // Guided quiz sentences (source = 'quiz') are excluded to keep the metric valid.
         $data = SentenceLog::where('child_id', $childId)
+            ->where('source', 'board')
             ->select(DB::raw('DATE(created_at) as date'), DB::raw('AVG(length) as mlu'))
             ->groupBy('date')
             ->orderBy('date', 'asc')

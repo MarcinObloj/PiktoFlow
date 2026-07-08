@@ -21,7 +21,24 @@ class ProfileController extends Controller
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
+            'hasBoardPin' => ! empty($request->user()->board_pin),
         ]);
+    }
+
+    /**
+     * Update the parental board PIN used to leave the child's board.
+     */
+    public function updatePin(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'board_pin' => ['required', 'digits:4'],
+        ]);
+
+        $request->user()->update([
+            'board_pin' => $validated['board_pin'],
+        ]);
+
+        return Redirect::route('profile.edit');
     }
 
     /**

@@ -38,6 +38,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/pin', [ProfileController::class, 'updatePin'])->name('profile.pin.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/pictograms/create', [PictogramController::class, 'create'])->name('pictograms.create');
@@ -56,6 +57,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/children/{child}/manage', [ChildController::class, 'manage'])->name('children.manage');
     Route::post('/children/{child}/manage', [ChildController::class, 'updateWords'])->name('children.update-words');
     Route::post('/children/{child}/reorder', [ChildController::class, 'reorder'])->name('children.reorder');
+    Route::post('/children/{child}/verify-pin', [ChildController::class, 'verifyPin'])->name('children.verify-pin');
     Route::get('/statistics', [ChildController::class, 'statistics'])->name('statistics.index');
     Route::post('/children/{child}/log-click', [ChildController::class, 'logClick'])->name('children.log-click');
     Route::post('/children/{child}/log-sentence', [ChildController::class, 'logSentence'])->name('children.log-sentence');

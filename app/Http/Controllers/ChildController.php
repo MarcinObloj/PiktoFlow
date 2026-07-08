@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Category;
 use App\Services\PredictionService;
 use App\Services\AnalyticsService;
@@ -238,6 +239,27 @@ class ChildController extends Controller
         ]);
     }
 
+    public function verifyPin(Request $request, Child $child)
+    {
+        if ($child->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'pin' => 'required|string',
+        ]);
+
+        $storedPin = $child->user->board_pin;
+
+        // Backward compatibility: if the caregiver hasn't set a custom PIN yet,
+        // accept the legacy default "1234" until they configure one in their profile.
+        $valid = $storedPin
+            ? Hash::check($request->pin, $storedPin)
+            : $request->pin === '1234';
+
+        return response()->json(['valid' => $valid]);
+    }
+
     public function reorder(Request $request, Child $child)
     {
         $ids = $request->input('ids');
@@ -464,7 +486,10 @@ class ChildController extends Controller
             'score' => 'required|integer|min:0',
             'total' => 'required|integer|min:1',
             'clicked_ids' => 'nullable|array',
+            'clicked_ids.*' => 'integer|exists:pictograms,id',
             'sentences' => 'nullable|array',
+            'sentences.*' => 'array',
+            'sentences.*.*' => 'integer|exists:pictograms,id',
         ]);
 
         $child->quizResults()->create([
@@ -481,11 +506,18 @@ class ChildController extends Controller
             }
         }
 
+        // Store guided quiz sentences with the real pictogram ids and a "quiz" source.
+        // These are excluded from spontaneous MLU analytics to keep the metric valid.
         if ($request->has('sentences') && !empty($request->sentences)) {
-            foreach ($request->sentences as $length) {
+            foreach ($request->sentences as $pictogramIds) {
+                if (empty($pictogramIds)) {
+                    continue;
+                }
+
                 $child->sentenceLogs()->create([
-                    'length' => $length,
-                    'pictogram_ids' => [1],
+                    'length' => count($pictogramIds),
+                    'pictogram_ids' => $pictogramIds,
+                    'source' => 'quiz',
                 ]);
             }
         }
