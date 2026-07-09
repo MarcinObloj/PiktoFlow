@@ -75,9 +75,15 @@ export function useTTS() {
             if (plVoice) utterance.voice = plVoice;
         }
 
-        utterance.rate = parseFloat(options.rate) || 1;
-        utterance.pitch = parseFloat(options.pitch) || 1;
-        utterance.volume = parseFloat(options.volume) || 1;
+        // Use ?? so an explicit 0 (e.g. muted volume) is respected instead of
+        // falling back to 1 like `|| 1` would.
+        const parseOr = (value, fallback) => {
+            const parsed = parseFloat(value);
+            return Number.isNaN(parsed) ? fallback : parsed;
+        };
+        utterance.rate = parseOr(options.rate, 1);
+        utterance.pitch = parseOr(options.pitch, 1);
+        utterance.volume = parseOr(options.volume, 1);
 
         if (options.onEnd) {
             utterance.onend = options.onEnd;

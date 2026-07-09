@@ -12,7 +12,7 @@ class ArasaacController extends Controller
         $query = $request->query('q');
         if (!$query) return response()->json([]);
 
-        $response = Http::get("https://api.arasaac.org/api/pictograms/pl/search/{$query}");
+        $response = Http::get("https://api.arasaac.org/api/pictograms/pl/search/" . urlencode($query));
 
         return $response->json();
     }

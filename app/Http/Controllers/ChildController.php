@@ -262,6 +262,10 @@ class ChildController extends Controller
 
     public function reorder(Request $request, Child $child)
     {
+        if ($child->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $ids = $request->input('ids');
 
         foreach ($ids as $index => $id) {
@@ -312,6 +316,10 @@ class ChildController extends Controller
 
     public function logClick(Request $request, Child $child)
     {
+        if ($child->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $request->validate([
             'pictogram_id' => 'required|exists:pictograms,id',
         ]);
@@ -326,6 +334,10 @@ class ChildController extends Controller
 
     public function logSentence(Request $request, Child $child)
     {
+        if ($child->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $request->validate([
             'pictogram_ids' => 'required|array',
         ]);

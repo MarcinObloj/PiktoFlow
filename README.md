@@ -26,7 +26,7 @@ PiktoFlow to kompleksowe narzędzie terapeutyczne, wyposażone w:
 Projekt opiera się na nowoczesnej architekturze tzw. nowoczesnego monolitu, gwarantującej błyskawiczne działanie interfejsu (SPA) przy zachowaniu wysokiego bezpieczeństwa danych.
 
 * **Frontend:** Vue.js 3 (Composition API), Tailwind CSS, Inertia.js
-* **Backend:** Laravel 11, PHP 8.x
+* **Backend:** Laravel 12, PHP 8.x
 * **Baza Danych:** PostgreSQL (uruchamiana w kontenerze Docker)
 * **Środowisko:** Laravel Sail (Docker)
 * **Zewnętrzne API:** ARASAAC API, Web Speech API, MediaRecorder API
