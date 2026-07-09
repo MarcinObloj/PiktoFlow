@@ -408,7 +408,7 @@ const verifyPin = async () => {
                                         :class="isCvi ? 'bg-black' : 'border-gray-200 bg-white'"
                                         :style="isCvi ? { borderColor: accent } : {}"
                                         class="border-2 rounded-xl p-2 w-24 h-24 flex flex-col items-center justify-center shadow-sm hover:bg-red-50 cursor-pointer transition-transform hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
-                                    <img v-if="p.image_path" :src="p.image_path" :alt="p.name" loading="lazy" class="w-10 h-10 object-contain mb-1 rounded pointer-events-none" />
+                                    <img v-if="p.image_path" :src="p.image_path" :alt="p.name" loading="lazy" class="w-10 h-10 object-contain mb-1 rounded pointer-events-none" :class="isCvi ? 'bg-white p-0.5 rounded-md' : ''" />
                                     <span :class="isCvi ? 'text-white' : 'text-gray-800'" class="text-xs font-bold text-center truncate w-full pointer-events-none">{{ p.name }}</span>
                                 </button>
                             </TransitionGroup>
@@ -460,7 +460,7 @@ const verifyPin = async () => {
                                     :style="isCvi ? { borderColor: accent } : {}"
                                     class="eyetracker-target flex items-center gap-2 border-2 rounded-xl px-4 py-2 transition-all active:scale-95 shadow-sm focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-purple-500 focus-visible:ring-offset-2"
                                     :data-id="p.id">
-                                <img v-if="p.image_path" :src="p.image_path" :alt="p.name" loading="lazy" class="w-6 h-6 object-contain pointer-events-none" />
+                                <img v-if="p.image_path" :src="p.image_path" :alt="p.name" loading="lazy" class="w-6 h-6 object-contain pointer-events-none" :class="isCvi ? 'bg-white p-0.5 rounded' : ''" />
                                 <span class="font-bold text-sm pointer-events-none">{{ p.name }}</span>
                             </button>
                         </TransitionGroup>
@@ -508,7 +508,9 @@ const verifyPin = async () => {
                                  :style="{ width: dwellProgress + '%' }">
                             </div>
 
-                            <img v-if="element.image_path" :src="element.image_path" :alt="element.name" loading="lazy" class="w-16 h-16 sm:w-20 sm:h-20 object-contain mb-3 rounded pointer-events-none" />
+                            <img v-if="element.image_path" :src="element.image_path" :alt="element.name" loading="lazy"
+                                 class="w-16 h-16 sm:w-20 sm:h-20 object-contain mb-3 rounded pointer-events-none"
+                                 :class="isCvi ? 'bg-white p-1 sm:p-2 rounded-xl' : ''" />
                             <div v-else class="mb-3 pointer-events-none text-gray-300"><Icon name="image" :size="56" /></div>
                             <span :class="isCvi ? 'text-white' : 'text-gray-800'" class="text-lg sm:text-xl font-bold text-center leading-tight pointer-events-none">{{ element.name }}</span>
                         </button>

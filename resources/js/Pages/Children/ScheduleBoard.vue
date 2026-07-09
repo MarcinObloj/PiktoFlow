@@ -79,7 +79,7 @@ const getLabel = (index, total) => {
                             {{ getLabel(index, planPictograms.length) }}
                         </div>
 
-                        <img v-if="pic.image_path" :src="pic.image_path" class="w-28 h-28 md:w-20 md:h-20 lg:w-32 lg:h-32 object-contain mb-3 rounded" />
+                        <img v-if="pic.image_path" :src="pic.image_path" class="w-28 h-28 md:w-20 md:h-20 lg:w-32 lg:h-32 object-contain mb-3 rounded" :class="isCvi ? 'bg-white p-2 rounded-2xl' : ''" />
                         <span :class="[isCvi ? 'text-yellow-400' : 'text-gray-900', 'text-2xl md:text-xl lg:text-3xl font-black text-center leading-tight truncate w-full px-2']">{{ pic.name }}</span>
                     </div>
 
